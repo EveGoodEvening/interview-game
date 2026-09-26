@@ -1,0 +1,51 @@
+.gg-card {
+  --card-accent: var(--c-sakura);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: var(--radius-l);
+  background: rgba(255, 255, 255, 0.86);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 8px 24px rgba(58, 36, 90, 0.12),
+    inset 0 0 0 1px color-mix(in srgb, var(--card-accent) 22%, transparent);
+}
+
+.gg-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px 4px;
+}
+
+.gg-card__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(135deg, var(--card-accent), color-mix(in srgb, var(--card-accent) 55%, var(--c-lavender)));
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--card-accent) 40%, transparent);
+}
+
+.gg-card__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--c-ink);
+}
+
+.gg-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gg-card__body {
+  min-height: 0;
+  padding: 10px 18px 16px;
+}

@@ -1,0 +1,46 @@
+import type { Namespace } from './index';
+
+const title: Namespace = {
+  zh: {
+    'menu.new': '开始面试',
+    'menu.continue': '继续面试',
+    'menu.records': '面试记录',
+    'menu.gallery': '结局回廊',
+    'menu.config': '设置',
+    'menu.new.en': 'NEW INTERVIEW',
+    'menu.continue.en': 'CONTINUE',
+    'menu.records.en': 'RECORDS',
+    'menu.gallery.en': 'ENDINGS',
+    'menu.config.en': 'CONFIG',
+    'menu.continue.none': '没有可以继续的面试',
+    menuLabel: '主菜单',
+    langToggle: '界面语言',
+    version: 'Ver. {v}',
+    credits: '© 2026 面试物语 · 立绘、背景与音乐均由代码实时生成',
+    keysHint: '↑↓ 选择　Enter 确认',
+    continueFailed: '存档读取失败：{msg}',
+    tagline: '上传简历，与面试官来一场心跳加速的模拟面试',
+  },
+  en: {
+    'menu.new': 'New Interview',
+    'menu.continue': 'Continue',
+    'menu.records': 'Records',
+    'menu.gallery': 'Endings',
+    'menu.config': 'Config',
+    'menu.new.en': '新的面试',
+    'menu.continue.en': '继续',
+    'menu.records.en': '记录',
+    'menu.gallery.en': '结局',
+    'menu.config.en': '设置',
+    'menu.continue.none': 'No interview to continue',
+    menuLabel: 'Main menu',
+    langToggle: 'Interface language',
+    version: 'Ver. {v}',
+    credits: '© 2026 Interview Story · All art, backgrounds and music are generated in code',
+    keysHint: '↑↓ select · Enter confirm',
+    continueFailed: 'Could not load the save: {msg}',
+    tagline: 'Upload your résumé and face a heart-pounding mock interview',
+  },
+};
+
+export default title;

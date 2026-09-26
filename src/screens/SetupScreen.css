@@ -1,0 +1,80 @@
+.su .mf__body {
+  padding-bottom: 18px;
+}
+
+.su__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.su__step {
+  position: absolute;
+  inset: 0;
+}
+
+.su__step--fwd {
+  animation: su-step-fwd 0.4s var(--ease-out);
+}
+
+.su__step--back {
+  animation: su-step-back 0.4s var(--ease-out);
+}
+
+.su__foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  margin-top: 14px;
+  padding: 0 4px;
+  flex: none;
+}
+
+.su__prev--hidden {
+  visibility: hidden;
+}
+
+.su__issues {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.su__start {
+  min-width: 220px;
+}
+
+.su__start:not(:disabled) {
+  animation: su-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes su-step-fwd {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes su-step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes su-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 6px 16px rgba(226, 85, 143, 0.35),
+      0 0 0 0 rgba(255, 126, 182, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 6px 16px rgba(226, 85, 143, 0.35),
+      0 0 0 10px rgba(255, 126, 182, 0);
+  }
+}

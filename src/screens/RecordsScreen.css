@@ -1,0 +1,267 @@
+.rec-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.rec-stats .gg-chip {
+  padding: 4px 12px;
+  font-size: 13px;
+  box-shadow: 0 3px 10px rgba(58, 36, 90, 0.1);
+}
+
+.rec-list {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 148px;
+  align-content: start;
+  gap: 16px;
+  padding: 6px 10px 10px 4px;
+}
+
+/* save-slot style card */
+.rec-card {
+  --rec-c: var(--c-sakura);
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 22px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.96), rgba(255, 250, 253, 0.92));
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 22px rgba(58, 36, 90, 0.13);
+  cursor: pointer;
+  overflow: hidden;
+  animation: rec-in 0.4s var(--ease-out) backwards;
+  /* Up to 30 cards: skip layout/paint for the ones scrolled out of view. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 148px;
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.25s,
+    border-color 0.2s;
+}
+
+.rec-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--rec-c);
+  opacity: 0.8;
+}
+
+.rec-card:hover,
+.rec-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--rec-c) 55%, #fff);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--rec-c) 25%, rgba(58, 36, 90, 0.2));
+}
+
+.rec-card:focus-visible {
+  outline: 3px solid var(--c-sky);
+  outline-offset: 2px;
+}
+
+.rec-card__cg {
+  width: 168px;
+  flex: none;
+  border-radius: 16px;
+}
+
+.rec-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.rec-card__date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-ink-soft);
+}
+
+.rec-card__who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rec-card__name {
+  font-size: 17px;
+  font-weight: 900;
+  color: color-mix(in srgb, var(--rec-c) 70%, var(--c-ink));
+  white-space: nowrap;
+}
+
+.rec-card__company {
+  font-size: 12px;
+  color: var(--c-ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rec-card__role {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rec-card__role--auto {
+  font-weight: 500;
+  font-style: italic;
+  color: var(--c-ink-soft);
+}
+
+.rec-card__meta {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  overflow: hidden;
+}
+
+.rec-card__score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  flex: none;
+  min-width: 96px;
+  padding-right: 4px;
+}
+
+.rec-card__num {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: transparent;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--rec-c) 80%, #fff), color-mix(in srgb, var(--rec-c) 70%, var(--c-lavender)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-variant-numeric: tabular-nums;
+}
+
+.rec-card__num small {
+  margin-left: 2px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c-ink-soft);
+  -webkit-text-fill-color: var(--c-ink-soft);
+}
+
+.rec-card__aff {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-sakura-deep);
+}
+
+.rec-card__del {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 2;
+}
+
+.rec-card__trash {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--c-ink-soft);
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    color 0.15s,
+    background 0.15s;
+}
+
+.rec-card:hover .rec-card__trash,
+.rec-card:focus-within .rec-card__trash {
+  opacity: 1;
+}
+
+.rec-card__trash:hover {
+  color: #fff;
+  background: var(--c-danger);
+}
+
+.rec-card__confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px 4px 12px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow:
+    0 4px 12px rgba(58, 36, 90, 0.2),
+    inset 0 0 0 1.5px rgba(255, 93, 108, 0.4);
+  font-size: 12px;
+  font-weight: 800;
+  color: #d43a4a;
+  animation: gg-pop-in 0.2s var(--ease-spring);
+}
+
+.rec-card__badge {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* ── empty state ── */
+.rec-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex: 1;
+  margin: 10px auto 40px;
+  width: 560px;
+  padding: 30px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 2px dashed rgba(255, 126, 182, 0.45);
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(58, 36, 90, 0.1);
+}
+
+.rec-empty__title {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.rec-empty__body {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--c-ink-soft);
+}
+
+@keyframes rec-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}

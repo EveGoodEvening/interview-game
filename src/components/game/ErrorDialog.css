@@ -1,0 +1,78 @@
+.errdlg__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.errdlg__icon {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, var(--c-sakura), var(--c-danger));
+  box-shadow: 0 3px 10px rgba(255, 93, 108, 0.4);
+}
+
+.errdlg__message {
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--c-ink);
+}
+.errdlg__hint {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-m);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--c-ink-soft);
+  background: rgba(143, 123, 255, 0.08);
+  border-left: 4px solid var(--c-lavender);
+}
+.errdlg__details summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--c-ink-soft);
+}
+.errdlg__details pre {
+  margin: 8px 0 0;
+  max-height: 140px;
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: var(--radius-s);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--c-ink);
+  background: rgba(58, 46, 79, 0.06);
+  user-select: text;
+}
+
+.errdlg__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.errdlg__spacer {
+  flex: 1;
+}
+.errdlg__abandon {
+  color: var(--c-danger);
+}
+/* Abandon asks first: the question takes its own row above the other actions. */
+.errdlg__foot .gg-confirm {
+  order: -1;
+  flex: 1 1 100%;
+  border-radius: 14px;
+}
+.errdlg__foot .gg-confirm__q {
+  flex: 1;
+  white-space: normal;
+  line-height: 1.4;
+}

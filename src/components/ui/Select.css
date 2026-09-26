@@ -1,0 +1,49 @@
+.gg-select {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+}
+
+.gg-select--disabled {
+  opacity: 0.5;
+}
+
+.gg-select__native {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 14px;
+  border: 2px solid #e6dcef;
+  border-radius: var(--radius-m);
+  background: #fff;
+  color: var(--c-ink);
+  font-size: 15px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.gg-select__native:hover:not(:disabled) {
+  border-color: var(--panel-border);
+}
+
+.gg-select__native:focus-visible {
+  outline: none;
+  border-color: var(--c-sakura);
+  box-shadow: 0 0 0 4px rgba(255, 126, 182, 0.2);
+}
+
+.gg-select__native:disabled {
+  cursor: not-allowed;
+}
+
+.gg-select__arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--c-sakura-deep);
+  pointer-events: none;
+}

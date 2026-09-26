@@ -1,0 +1,42 @@
+.gg-spinner {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  animation: gg-spinner-spin 1.4s linear infinite;
+}
+
+.gg-spinner__dot {
+  position: absolute;
+  inset: 0;
+}
+
+.gg-spinner__dot::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 28%;
+  height: 34%;
+  margin-left: -14%;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: currentColor;
+  opacity: 0.35;
+  animation: gg-spinner-pulse 0.6s ease-in-out infinite alternate;
+  animation-delay: inherit;
+}
+
+@keyframes gg-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gg-spinner-pulse {
+  to {
+    opacity: 1;
+  }
+}
+
+.reduce-motion .gg-spinner {
+  animation-duration: 1.4s !important;
+}

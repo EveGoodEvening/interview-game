@@ -1,0 +1,94 @@
+.mcg {
+  --cg-c: var(--c-sakura);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 14px;
+  background: #e9e4f2;
+}
+
+/* Kill switch for still thumbnails: whatever a background or portrait part animates, it holds still here. */
+.mcg--still,
+.mcg--still * {
+  animation: none !important;
+}
+
+.mcg__portrait {
+  position: absolute !important;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  z-index: 1;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 4px 8px rgba(20, 10, 40, 0.25));
+}
+
+.mcg--rejected .mcg__portrait {
+  filter: drop-shadow(0 4px 8px rgba(10, 10, 30, 0.35)) saturate(0.85) brightness(0.92);
+}
+
+/* ink stamp in the corner */
+.mcg__stamp {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 2;
+  padding: 2px 8px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  transform: rotate(-8deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.mcg__stamp--perfect {
+  color: #d9481c;
+  background: rgba(255, 244, 214, 0.85);
+}
+
+.mcg__stamp--offer {
+  color: #e2355f;
+}
+
+.mcg__stamp--pending {
+  color: #3b7fc4;
+}
+
+.mcg__stamp--rejected {
+  color: #5d6479;
+}
+
+/* locked */
+.mcg--locked {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0 8px, transparent 8px 16px),
+    linear-gradient(160deg, #e7e2ef 0%, #cfc7de 100%);
+}
+
+.mcg--locked .mcg__portrait {
+  filter: none;
+  opacity: 0.8;
+}
+
+.mcg__lock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(58, 46, 79, 0.72);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  transform: translate(-50%, -50%);
+}

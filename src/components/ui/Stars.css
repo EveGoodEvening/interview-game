@@ -1,0 +1,15 @@
+.gg-stars {
+  --stars-c: var(--c-gold);
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: middle;
+}
+
+.gg-stars__on {
+  color: var(--stars-c);
+  filter: drop-shadow(0 1px 1px rgba(160, 100, 0, 0.3));
+}
+
+.gg-stars__off {
+  color: #e2dcea;
+}

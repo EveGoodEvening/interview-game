@@ -1,0 +1,34 @@
+.gg-meter {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 26px;
+}
+
+.gg-meter__bar {
+  flex: 1;
+  min-width: 4px;
+  height: 100%;
+  border-radius: 3px;
+  background: #ece5f3;
+  transform-origin: bottom;
+  transition: background 0.06s;
+}
+
+.gg-meter__bar:nth-child(odd) {
+  height: 80%;
+}
+
+.gg-meter__bar--low.gg-meter__bar--on {
+  background: var(--c-mint);
+}
+.gg-meter__bar--mid.gg-meter__bar--on {
+  background: var(--c-gold);
+}
+.gg-meter__bar--high.gg-meter__bar--on {
+  background: var(--c-sakura);
+}
+
+.gg-meter--idle .gg-meter__bar {
+  opacity: 0.6;
+}

@@ -1,0 +1,174 @@
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: var(--z-bg);
+}
+
+.bg-layer__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── ambient motion ──────────────────────────────────────────────────── */
+.bg-drift {
+  animation: bg-drift 38s ease-in-out infinite alternate;
+}
+
+.bg-drift--slow {
+  animation-duration: 46s;
+}
+
+.bg-drift--slower {
+  animation-duration: 70s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes bg-drift {
+  from {
+    transform: translateX(-36px);
+  }
+  to {
+    transform: translateX(36px);
+  }
+}
+
+.bg-parallax-far {
+  animation: bg-parallax 30s ease-in-out infinite alternate;
+}
+
+.bg-parallax-near {
+  animation: bg-parallax 30s ease-in-out infinite alternate;
+  animation-name: bg-parallax-near;
+}
+
+@keyframes bg-parallax {
+  from {
+    transform: translateX(-6px);
+  }
+  to {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes bg-parallax-near {
+  from {
+    transform: translateX(-14px);
+  }
+  to {
+    transform: translateX(14px);
+  }
+}
+
+.bg-sway {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: bg-sway 7s ease-in-out infinite alternate;
+}
+
+.bg-sway--alt {
+  transform-origin: 1280px 0;
+  animation-duration: 8.5s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes bg-sway {
+  from {
+    transform: rotate(-0.8deg);
+  }
+  to {
+    transform: rotate(0.8deg);
+  }
+}
+
+.bg-float {
+  animation: bg-float 12s ease-in-out infinite alternate;
+}
+
+@keyframes bg-float {
+  from {
+    transform: translate(0, 8px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate(0, -10px);
+    opacity: 1;
+  }
+}
+
+.bg-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bg-twinkle 3s ease-in-out infinite;
+}
+
+@keyframes bg-twinkle {
+  0%,
+  100% {
+    transform: scale(0.4) rotate(0deg);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1) rotate(25deg);
+    opacity: 1;
+  }
+}
+
+.bg-spin {
+  animation: bg-spin 90s linear infinite;
+}
+
+@keyframes bg-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bg-blink {
+  animation: bg-blink 1.6s steps(2, jump-none) infinite;
+}
+
+@keyframes bg-blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.25;
+  }
+}
+
+.bg-rain {
+  animation: bg-rain 0.9s linear infinite;
+}
+
+.bg-rain--far {
+  animation-duration: 1.4s;
+}
+
+@keyframes bg-rain {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-158px, 720px);
+  }
+}
+
+/* ── still frames (thumbnails) and reduced motion: everything holds still ── */
+.bg-still * {
+  animation: none !important;
+}
+
+.reduce-motion .bg-layer * {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-layer * {
+    animation: none !important;
+  }
+}

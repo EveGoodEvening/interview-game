@@ -1,0 +1,99 @@
+.gg-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 15, 36, 0.55);
+  backdrop-filter: blur(3px);
+  animation: gg-fade-in 0.2s var(--ease-out);
+}
+
+.gg-modal {
+  position: relative;
+  max-height: 620px;
+  display: flex;
+  flex-direction: column;
+  animation: gg-pop-in 0.25s var(--ease-spring);
+  outline: none;
+}
+
+/* ribbon hairline along the top edge */
+.gg-modal::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 40px;
+  right: 40px;
+  height: 4px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, var(--c-sakura), var(--c-lavender));
+  opacity: 0.8;
+}
+
+.gg-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 8px;
+}
+
+.gg-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 20px;
+  color: var(--c-sakura-deep);
+}
+
+.gg-modal__title-icon {
+  color: var(--c-sakura);
+}
+
+.gg-modal__close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--c-ink-soft);
+  transition:
+    background 0.15s,
+    color 0.15s,
+    transform 0.2s var(--ease-out);
+}
+
+.gg-modal__close:hover {
+  background: rgba(255, 126, 182, 0.14);
+  color: var(--c-sakura-deep);
+  transform: rotate(90deg);
+}
+
+.gg-modal__body {
+  padding: 8px 22px 16px;
+  min-height: 0;
+}
+
+.gg-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 22px 18px;
+}
+
+@keyframes gg-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes gg-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+}

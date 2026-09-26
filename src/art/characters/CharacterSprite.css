@@ -1,0 +1,204 @@
+/* ── sprite ─────────────────────────────────────────────────────────── */
+.cs-sprite {
+  display: block;
+  width: auto;
+  aspect-ratio: 3 / 4;
+  overflow: visible;
+  transition: filter 280ms var(--ease-out);
+}
+
+.cs-sprite--dimmed {
+  filter: brightness(0.6) saturate(0.78);
+}
+
+/* idle breathing: body and head bob slightly out of phase */
+.cs-bob-body {
+  animation: cs-bob-body 4.4s ease-in-out infinite;
+}
+
+.cs-bob-head {
+  animation: cs-bob-head 4.4s ease-in-out 0.18s infinite;
+}
+
+@keyframes cs-bob-body {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.2px);
+  }
+}
+
+@keyframes cs-bob-head {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.4px);
+  }
+}
+
+/* ── blink / lip-sync (attributes toggled by hooks, no React re-render) ── */
+.cs-eye-closed {
+  display: none;
+}
+
+.cs-root[data-blink] .cs-eye-open {
+  display: none;
+}
+
+.cs-root[data-blink] .cs-eye-closed {
+  display: inline;
+}
+
+.cs-mouth {
+  display: none;
+}
+
+.cs-root:not([data-mouth]) .cs-m0,
+.cs-root[data-mouth='0'] .cs-m0,
+.cs-root[data-mouth='1'] .cs-m1,
+.cs-root[data-mouth='2'] .cs-m2,
+.cs-root[data-mouth='3'] .cs-m3 {
+  display: inline;
+}
+
+/* ── expression crossfade ───────────────────────────────────────────── */
+.cs-face-in {
+  animation: cs-fade-in 170ms ease-out both;
+}
+
+.cs-face-out {
+  animation: cs-fade-out 170ms ease-in both;
+}
+
+@keyframes cs-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cs-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── manga symbols ──────────────────────────────────────────────────── */
+.cs-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cs-twinkle 1.6s ease-in-out infinite;
+}
+
+@keyframes cs-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.55) rotate(20deg);
+    opacity: 0.6;
+  }
+}
+
+.cs-sweat {
+  animation: cs-sweat 2.4s ease-in-out infinite;
+}
+
+@keyframes cs-sweat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+.cs-shock {
+  animation: cs-shock 260ms var(--ease-spring) both;
+  transform-box: fill-box;
+  transform-origin: left bottom;
+}
+
+@keyframes cs-shock {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ── portrait ───────────────────────────────────────────────────────── */
+.cp-portrait {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(160deg, color-mix(in srgb, var(--cp-accent) 30%, #fff) 0%, color-mix(in srgb, var(--cp-accent) 55%, #fff) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.85),
+    0 2px 8px rgba(40, 20, 70, 0.18);
+}
+
+.cp-portrait--circle {
+  border-radius: 50%;
+}
+
+.cp-portrait--rounded {
+  border-radius: 22%;
+}
+
+.cp-portrait__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cp-portrait--silhouette {
+  background: linear-gradient(160deg, #d9d3e6 0%, #bfb6d3 100%);
+}
+
+.cp-portrait--silhouette .cp-portrait__art {
+  filter: brightness(0) opacity(0.32);
+}
+
+/* still portraits (thumbnails): nothing animates, whatever a future part adds */
+.cp-portrait--still * {
+  animation: none !important;
+}
+
+/* ── reduced motion ─────────────────────────────────────────────────── */
+.reduce-motion .cs-bob-body,
+.reduce-motion .cs-bob-head,
+.reduce-motion .cs-sparkle,
+.reduce-motion .cs-sweat,
+.reduce-motion .cs-shock {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-bob-body,
+  .cs-bob-head,
+  .cs-sparkle,
+  .cs-sweat,
+  .cs-shock {
+    animation: none !important;
+  }
+}

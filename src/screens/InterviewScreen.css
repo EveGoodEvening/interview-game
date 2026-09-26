@@ -1,0 +1,128 @@
+.iv-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Not even programmatically scrollable: the sprite reaches a few px below the stage, and a focus /
+     scroll-into-view would otherwise shift the whole scene up (a dark strip at the bottom). */
+  overflow: clip;
+  background: var(--c-night);
+  cursor: default;
+}
+.iv-screen--interviewer {
+  cursor: pointer;
+}
+
+.iv-bg {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-bg);
+  animation: iv-bg-in 0.8s ease;
+}
+
+/* ── Sprite ── */
+.iv-sprite {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  z-index: var(--z-sprite);
+  transform: translateX(-50%);
+  transition: transform 0.7s var(--ease-out);
+  filter: drop-shadow(0 12px 24px rgba(30, 15, 60, 0.28));
+  pointer-events: none;
+}
+.iv-sprite__in {
+  animation: iv-sprite-in 0.8s var(--ease-out);
+}
+.iv-sprite__in > svg {
+  display: block;
+}
+.iv-sprite--aside {
+  transform: translateX(calc(-50% + 250px));
+}
+
+/* soft vignette so the HUD and the text box read well over any background */
+.iv-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-sprite);
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(20, 15, 36, 0.16), transparent 18%),
+    linear-gradient(0deg, rgba(20, 15, 36, 0.35), transparent 34%);
+}
+
+.iv-ui {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-ui);
+  pointer-events: none;
+  animation: iv-fade 0.25s ease;
+}
+.iv-ui > * {
+  pointer-events: auto;
+}
+
+.iv-ended {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.iv-hidden-hint {
+  position: absolute;
+  right: 20px;
+  bottom: 14px;
+  z-index: var(--z-ui);
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(20, 15, 36, 0.45);
+  pointer-events: none;
+  animation: iv-fade 0.4s ease;
+}
+
+.iv-modal-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--c-ink);
+}
+
+/* ── No session ── */
+.iv-screen--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #2d2552, #1f1a3a);
+}
+.iv-empty {
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  font-size: 17px;
+}
+.iv-empty p {
+  margin: 0;
+}
+
+@keyframes iv-bg-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+@keyframes iv-sprite-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes iv-fade {
+  from {
+    opacity: 0;
+  }
+}

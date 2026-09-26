@@ -1,0 +1,302 @@
+/* ── completion meter (header) ── */
+.gal-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 16px rgba(58, 36, 90, 0.12);
+}
+
+.gal-progress__label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c-ink-soft);
+}
+
+.gal-progress__bar {
+  position: relative;
+  width: 200px;
+  height: 10px;
+  border-radius: 999px;
+  background: #ece5f3;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(58, 46, 79, 0.18);
+}
+
+.gal-progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--c-gold), var(--c-sakura), var(--c-lavender));
+  animation: gal-fill 1s var(--ease-out) 0.2s backwards;
+}
+
+.gal-progress__pct {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--c-sakura-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.gal-progress__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-ink-soft);
+}
+
+/* ── grid ── */
+.gal {
+  display: grid;
+  grid-template-columns: 168px repeat(4, 1fr);
+  grid-template-rows: 30px repeat(3, 1fr);
+  gap: 12px 14px;
+  flex: 1;
+  min-height: 0;
+  padding: 16px 20px 18px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 28px rgba(58, 36, 90, 0.12);
+  backdrop-filter: blur(3px);
+}
+
+.gal__colhead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(58, 36, 90, 0.15);
+}
+
+.gal__colhead--perfect {
+  background: linear-gradient(135deg, #ffcf5a, #ff8f6b);
+}
+.gal__colhead--offer {
+  background: linear-gradient(135deg, #ff8fbf, #ff6a9a);
+}
+.gal__colhead--pending {
+  background: linear-gradient(135deg, #8fc4ff, #7b8cff);
+}
+.gal__colhead--rejected {
+  background: linear-gradient(135deg, #a3a9bf, #6f7690);
+}
+
+.gal__row {
+  display: contents;
+}
+
+.gal__rowhead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--row-c) 18%, #fff), #fff);
+  border: 1.5px solid color-mix(in srgb, var(--row-c) 35%, transparent);
+  animation: gal-in 0.45s var(--ease-out) calc(var(--row-i) * 80ms) backwards;
+}
+
+.gal__rowname {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 900;
+  color: color-mix(in srgb, var(--row-c) 70%, var(--c-ink));
+}
+
+.gal__rowco {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-ink-soft);
+}
+
+.gal__cell {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 3px solid #fff;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(58, 36, 90, 0.14);
+  overflow: hidden;
+  text-align: left;
+  animation: gal-in 0.45s var(--ease-out) calc(var(--row-i) * 80ms + 60ms) backwards;
+}
+
+.gal__cg {
+  flex: 1;
+  border-radius: 14px;
+}
+
+.gal__cell--open {
+  cursor: pointer;
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.25s;
+}
+
+.gal__cell--open:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--row-c) 45%, transparent),
+    0 12px 26px rgba(58, 36, 90, 0.22);
+}
+
+.gal__cell--open:hover .mcg__portrait {
+  transform: translateX(-50%) scale(1.06);
+}
+
+.gal__cell .mcg__portrait {
+  transition: transform 0.35s var(--ease-spring);
+}
+
+.gal__date,
+.gal__hint {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 3;
+  max-width: calc(100% - 16px);
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gal__date {
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--c-ink-soft);
+}
+
+.gal__hint {
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  background: rgba(58, 46, 79, 0.6);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.gal__cell--locked:hover .gal__hint {
+  opacity: 1;
+}
+
+/* ── ending modal (large CG) ── */
+.gal-modal .gg-modal__body {
+  padding-bottom: 8px;
+}
+
+.gal-cg {
+  --cg-c: var(--c-sakura);
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 18px;
+  isolation: isolate;
+}
+
+.gal-cg__sprite {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  z-index: 1;
+  transform: translateX(-50%);
+  animation: gal-sprite-in 0.6s var(--ease-out);
+}
+
+.gal-cg__stamp {
+  position: absolute;
+  right: 28px;
+  top: 26px;
+  z-index: 3;
+  padding: 6px 18px;
+  border: 4px solid currentColor;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  transform: rotate(-10deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  animation: gal-stamp 0.5s var(--ease-spring) 0.25s backwards;
+}
+
+.gal-cg__stamp--perfect {
+  color: #d9481c;
+}
+.gal-cg__stamp--offer {
+  color: #e2355f;
+}
+.gal-cg__stamp--pending {
+  color: #3b7fc4;
+}
+.gal-cg__stamp--rejected {
+  color: #5d6479;
+}
+
+.gal-cg__caption {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  z-index: 2;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(31, 26, 58, 0.78);
+  color: #fdfbff;
+  backdrop-filter: blur(4px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.gal-cg__caption p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.gal-cg__date {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: color-mix(in srgb, var(--cg-c) 50%, #fff);
+}
+
+@keyframes gal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+}
+
+@keyframes gal-fill {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes gal-sprite-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+@keyframes gal-stamp {
+  from {
+    opacity: 0;
+    transform: rotate(-10deg) scale(2.2);
+  }
+}

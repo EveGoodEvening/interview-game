@@ -1,0 +1,79 @@
+.sp-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* full-height column that slides down by its own height (+ margin) */
+.sp-fall {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  animation: sp-fall 11s linear infinite;
+  will-change: transform;
+}
+
+.sp-sway {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  width: 100%;
+  animation: sp-sway 3.4s ease-in-out infinite alternate;
+}
+
+.sp-spin {
+  width: 100%;
+  animation:
+    sp-spin 5s linear infinite,
+    sp-flip 2.4s ease-in-out infinite alternate;
+}
+
+.sp-petal {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@keyframes sp-fall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(100% + 56px));
+  }
+}
+
+@keyframes sp-sway {
+  from {
+    transform: translateX(calc(var(--sp-sway, 30px) * -0.5));
+  }
+  to {
+    transform: translateX(calc(var(--sp-sway, 30px) * 0.5));
+  }
+}
+
+@keyframes sp-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes sp-flip {
+  from {
+    transform: rotateX(0deg) rotateY(10deg);
+  }
+  to {
+    transform: rotateX(70deg) rotateY(55deg);
+  }
+}
+
+.reduce-motion .sp-layer {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-layer {
+    display: none;
+  }
+}

@@ -1,0 +1,97 @@
+.gg-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.gg-tabs--vertical {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gg-tabs__tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  background: transparent;
+  color: var(--c-ink-soft);
+  font-weight: 700;
+  text-align: left;
+  transition:
+    color 0.15s,
+    background 0.2s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.gg-tabs--horizontal .gg-tabs__tab {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 15px;
+}
+
+.gg-tabs--horizontal .gg-tabs__tab--active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--c-sakura), var(--c-lavender));
+  box-shadow: 0 4px 12px rgba(226, 85, 143, 0.3);
+}
+
+.gg-tabs--horizontal .gg-tabs__tab:not(.gg-tabs__tab--active):hover {
+  color: var(--c-sakura-deep);
+  background: rgba(255, 126, 182, 0.1);
+}
+
+/* vertical: galgame "config" side tabs — a ribbon slides in from the left */
+.gg-tabs--vertical .gg-tabs__tab {
+  padding: 12px 18px 12px 22px;
+  border-radius: 0 999px 999px 0;
+  font-size: 17px;
+  overflow: hidden;
+}
+
+.gg-tabs--vertical .gg-tabs__tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--c-sakura), var(--c-lavender));
+  transform: translateX(-101%);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.gg-tabs--vertical .gg-tabs__tab {
+  isolation: isolate;
+}
+
+.gg-tabs--vertical .gg-tabs__tab:hover:not(.gg-tabs__tab--active) {
+  color: var(--c-sakura-deep);
+  transform: translateX(4px);
+}
+
+.gg-tabs--vertical .gg-tabs__tab--active {
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(226, 85, 143, 0.28);
+}
+
+.gg-tabs--vertical .gg-tabs__tab--active::before {
+  transform: translateX(0);
+}
+
+.gg-tabs__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.gg-tabs__sub {
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.gg-tabs__icon {
+  flex: none;
+}

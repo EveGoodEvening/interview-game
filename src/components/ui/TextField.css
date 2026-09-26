@@ -1,0 +1,87 @@
+.gg-field {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.gg-field__input,
+.gg-textarea {
+  width: 100%;
+  border: 2px solid #e6dcef;
+  border-radius: var(--radius-m);
+  background: #fff;
+  color: var(--c-ink);
+  font-size: 15px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.gg-field__input {
+  height: 40px;
+  padding: 0 14px;
+}
+
+.gg-field--secret .gg-field__input {
+  padding-right: 46px;
+}
+
+.gg-field--mono .gg-field__input {
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.gg-field__input::placeholder,
+.gg-textarea::placeholder {
+  color: #b3a8c4;
+}
+
+.gg-field__input:hover:not(:disabled),
+.gg-textarea:hover:not(:disabled) {
+  border-color: var(--panel-border);
+}
+
+.gg-field__input:focus-visible,
+.gg-textarea:focus-visible {
+  outline: none;
+  border-color: var(--c-sakura);
+  box-shadow: 0 0 0 4px rgba(255, 126, 182, 0.2);
+}
+
+.gg-field__input:disabled,
+.gg-textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.gg-field--invalid .gg-field__input,
+.gg-textarea--invalid {
+  border-color: var(--c-danger);
+}
+
+.gg-field__eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--c-ink-soft);
+}
+
+.gg-field__eye:hover {
+  color: var(--c-sakura-deep);
+  background: rgba(255, 126, 182, 0.12);
+}
+
+.gg-textarea {
+  display: block;
+  padding: 10px 14px;
+  line-height: 1.6;
+  resize: none;
+}

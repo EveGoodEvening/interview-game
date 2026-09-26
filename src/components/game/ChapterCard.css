@@ -1,0 +1,131 @@
+.chapter {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(20, 15, 36, 0.28), rgba(20, 15, 36, 0.5));
+  animation: chapter-veil 1.7s ease forwards;
+}
+
+.chapter__band {
+  position: relative;
+  width: 100%;
+  padding: 26px 0 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, transparent, rgba(24, 18, 48, 0.86) 18%, rgba(24, 18, 48, 0.86) 82%, transparent);
+  animation: chapter-band 1.7s var(--ease-out) forwards;
+}
+.chapter__band::before,
+.chapter__band::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--c-gold) 25%, #fff5d6 50%, var(--c-gold) 75%, transparent);
+  opacity: 0.9;
+}
+.chapter__band::before {
+  top: 8px;
+}
+.chapter__band::after {
+  bottom: 8px;
+}
+
+.chapter__kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.6em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  padding-left: 0.6em;
+  animation: chapter-text 1.7s var(--ease-out) forwards;
+}
+
+.chapter__line {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  max-width: 1100px;
+  color: #fff;
+  font-family: var(--font-display);
+  text-shadow:
+    0 2px 12px rgba(255, 126, 182, 0.55),
+    0 0 2px rgba(0, 0, 0, 0.6);
+  animation: chapter-text 1.7s var(--ease-out) 0.08s both;
+}
+.chapter__head {
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+.chapter__dot {
+  font-size: 34px;
+  color: var(--c-sakura);
+}
+.chapter__title {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chapter__flower {
+  align-self: center;
+  font-size: 20px;
+  color: var(--c-sakura);
+  font-family: var(--font-ui);
+}
+
+@keyframes chapter-veil {
+  0% {
+    opacity: 0;
+  }
+  12%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes chapter-band {
+  0% {
+    transform: scaleY(0);
+  }
+  14% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes chapter-text {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px);
+    filter: blur(6px);
+    letter-spacing: 0.5em;
+  }
+  22% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(8px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}

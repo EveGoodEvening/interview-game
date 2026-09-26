@@ -1,0 +1,140 @@
+/*
+ * Global tokens + base styles. The whole game renders inside a fixed 1280×720
+ * "stage" that is scaled to fit the window (see components/ui/StageFrame.tsx),
+ * so component CSS can use plain px values in stage coordinates.
+ */
+:root {
+  --stage-w: 1280px;
+  --stage-h: 720px;
+
+  --font-ui: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Zen Hei', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', Georgia, serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* palette — pastel "sakura office" */
+  --c-letterbox: #140f24;
+  --c-ink: #3a2e4f; /* main text on light panels */
+  --c-ink-soft: #6b5d80;
+  --c-paper: #fffaf6;
+  --c-sakura: #ff7eb6;
+  --c-sakura-deep: #e2558f;
+  --c-lavender: #8f7bff;
+  --c-sky: #7cc4ff;
+  --c-gold: #ffc857;
+  --c-mint: #5fd3a8;
+  --c-danger: #ff5d6c;
+  --c-night: #1f1a3a; /* dialogue box base */
+  --c-night-2: #2d2552;
+
+  --panel-bg: rgba(255, 250, 246, 0.92);
+  --panel-border: rgba(255, 126, 182, 0.55);
+  --panel-shadow: 0 10px 30px rgba(40, 20, 70, 0.25);
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 22px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* z-index scale inside the stage */
+  --z-bg: 0;
+  --z-sprite: 10;
+  --z-ui: 20;
+  --z-dialogue: 30;
+  --z-overlay: 50;
+  --z-modal: 70;
+  --z-toast: 90;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--c-letterbox);
+  color: var(--c-ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+textarea,
+input[type='text'],
+input[type='password'],
+input[type='url'],
+input[type='number'] {
+  user-select: text;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--c-sky);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(255, 126, 182, 0.35);
+}
+
+/* thin pastel scrollbars inside panels */
+.gg-scroll {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(143, 123, 255, 0.5) transparent;
+}
+
+/* Generic light panel (settings, setup, report) */
+.gg-panel {
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-l);
+  box-shadow: var(--panel-shadow);
+}
+
+.gg-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}

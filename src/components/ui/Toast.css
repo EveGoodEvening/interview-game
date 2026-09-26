@@ -1,0 +1,95 @@
+.gg-toasts {
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  width: 360px;
+  pointer-events: none;
+}
+
+.gg-toast {
+  --toast-c: #5a6fd6;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 100%;
+  padding: 12px 16px 12px 12px;
+  border-radius: 16px;
+  background: rgba(255, 250, 246, 0.97);
+  border: 1.5px solid color-mix(in srgb, var(--toast-c) 35%, #fff);
+  box-shadow:
+    0 10px 28px rgba(40, 20, 70, 0.25),
+    inset 4px 0 0 var(--toast-c);
+  color: var(--c-ink);
+  pointer-events: auto;
+  cursor: pointer;
+  animation: gg-toast-in 0.35s var(--ease-spring);
+}
+
+.gg-toast--leaving {
+  animation: gg-toast-out 0.26s var(--ease-out) forwards;
+}
+
+.gg-toast--success {
+  --toast-c: #1f9e72;
+}
+.gg-toast--warning {
+  --toast-c: #d69200;
+}
+.gg-toast--error {
+  --toast-c: var(--c-danger);
+}
+.gg-toast--unlock {
+  --toast-c: var(--c-sakura-deep);
+  background: radial-gradient(120% 160% at 0% 0%, rgba(255, 200, 87, 0.28), transparent 60%), rgba(255, 250, 246, 0.97);
+}
+
+.gg-toast__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--toast-c);
+}
+
+.gg-toast--unlock .gg-toast__icon {
+  background: linear-gradient(135deg, var(--c-gold), var(--c-sakura));
+}
+
+.gg-toast__body {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.gg-toast__title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--toast-c);
+}
+
+.gg-toast__msg {
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@keyframes gg-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.96);
+  }
+}
+
+@keyframes gg-toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}

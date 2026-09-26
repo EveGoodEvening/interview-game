@@ -1,0 +1,25 @@
+.app-screen {
+  position: absolute;
+  inset: 0;
+}
+
+/* Full-stage black curtain used for screen transitions. */
+.app-fade {
+  position: absolute;
+  inset: 0;
+  z-index: calc(var(--z-toast) - 1);
+  background: #0c0818;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-fade--out {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 140ms ease-in;
+}
+
+.app-fade--in {
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}

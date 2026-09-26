@@ -1,0 +1,241 @@
+.ap-screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #fdf7fb 0%, #f1eefc 100%);
+  color: var(--c-ink);
+  user-select: text;
+}
+
+.ap-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-ui);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 20px;
+  background: rgba(255, 250, 246, 0.94);
+  border-bottom: 2px solid var(--panel-border);
+  box-shadow: 0 4px 14px rgba(40, 20, 70, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.ap-toolbar__title {
+  margin: 0 auto 0 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--c-sakura-deep);
+}
+
+.ap-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--c-ink-soft);
+  cursor: pointer;
+}
+
+.ap-toggle--range input {
+  width: 120px;
+}
+
+.ap-toggle__value {
+  min-width: 64px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.ap-btn,
+.ap-chip {
+  border: 2px solid var(--panel-border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 14px;
+  color: var(--c-ink);
+  transition:
+    background 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+
+.ap-btn:hover,
+.ap-chip:hover {
+  background: #fff0f6;
+}
+
+.ap-chip--on {
+  background: var(--ap-accent, var(--c-sakura));
+  border-color: var(--ap-accent, var(--c-sakura));
+  color: #fff;
+}
+
+.ap-chip--on:hover {
+  background: var(--ap-accent, var(--c-sakura-deep));
+}
+
+.ap-section {
+  padding: 18px 20px 8px;
+}
+
+.ap-section__title {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-lavender);
+  letter-spacing: 0.04em;
+}
+
+/* featured */
+.ap-featured {
+  display: flex;
+  gap: 20px;
+}
+
+.ap-featured__stage {
+  position: relative;
+  width: 747px;
+  height: 420px;
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: var(--panel-shadow);
+}
+
+.ap-featured__sprite {
+  position: absolute;
+  left: 50%;
+  bottom: -150px;
+  transform: translateX(-50%);
+}
+
+.ap-featured__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.ap-featured__portraits {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.ap-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* expressions */
+.ap-row {
+  margin-bottom: 12px;
+}
+
+.ap-row__name {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.ap-row__cells {
+  display: flex;
+  gap: 6px;
+}
+
+.ap-cell {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(180deg, #ffffff 0%, #f4effb 100%);
+  border: 1px solid rgba(143, 123, 255, 0.2);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+}
+
+.ap-cell__label {
+  font-size: 12px;
+  color: var(--c-ink-soft);
+  padding: 2px 0 4px;
+}
+
+/* portraits */
+.ap-portraits {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.ap-portraits__tagged {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  color: var(--c-ink-soft);
+}
+
+/* thumbnails */
+.ap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.ap-thumb {
+  margin: 0;
+}
+
+.ap-thumb__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  cursor: zoom-in;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(40, 20, 70, 0.18);
+  background: #000;
+}
+
+.ap-thumb__label {
+  font-size: 13px;
+  color: var(--c-ink-soft);
+  padding: 4px 2px 0;
+}
+
+.ap-still__portrait {
+  position: absolute;
+  left: 8%;
+  bottom: 10%;
+}
+
+.ap-scene__sprite {
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  transform: translateX(-50%);
+}
+
+/* full-stage view of a thumbnail (click to close); fixed to the stage, not the scroller */
+.ap-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  padding: 0;
+  border: 0;
+  background: #000;
+  cursor: zoom-out;
+  overflow: hidden;
+}
+
+.ap-zoom .ap-scene__sprite {
+  height: 640px !important;
+  bottom: -110px;
+}

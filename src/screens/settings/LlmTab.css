@@ -1,0 +1,133 @@
+.cfg-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.cfg-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cfg-inline > .gg-field,
+.cfg-inline > .gg-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.cfg-protocol {
+  align-self: flex-start;
+}
+
+.cfg-demo {
+  display: flex;
+  gap: 14px;
+  margin: 10px 0 4px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: radial-gradient(120% 140% at 0% 0%, rgba(255, 200, 87, 0.25), transparent 60%), linear-gradient(135deg, #fff8fb, #f6f1ff);
+  border: 1.5px dashed rgba(255, 126, 182, 0.45);
+}
+
+.cfg-demo__icon {
+  flex: none;
+  color: var(--c-gold);
+  filter: drop-shadow(0 2px 3px rgba(200, 140, 0, 0.3));
+}
+
+.cfg-demo__title {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--c-sakura-deep);
+}
+
+.cfg-demo__body {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--c-ink);
+}
+
+/* ── connection test ── */
+.cfg-test {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 244, 250, 0.9), rgba(242, 238, 255, 0.9));
+  border: 1px solid rgba(143, 123, 255, 0.2);
+}
+
+.cfg-test > .gg-btn {
+  flex: none;
+}
+
+.cfg-test__result {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  animation: gg-pop-in 0.25s var(--ease-spring);
+  user-select: text;
+}
+
+.cfg-test__result--ok {
+  box-shadow: inset 4px 0 0 var(--c-mint);
+}
+
+.cfg-test__result--bad {
+  box-shadow: inset 4px 0 0 var(--c-danger);
+}
+
+.cfg-test__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.cfg-test__result--ok .cfg-test__title {
+  color: #1f9e72;
+}
+
+.cfg-test__result--bad .cfg-test__title {
+  color: #e0414f;
+}
+
+.cfg-test__body {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-ink);
+  overflow-wrap: anywhere;
+}
+
+.cfg-test__more {
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cfg-test__detail {
+  max-height: 110px;
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  overflow: auto;
+  border-radius: 8px;
+  background: #f6f2fa;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

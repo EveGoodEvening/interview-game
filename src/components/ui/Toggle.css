@@ -1,0 +1,66 @@
+.gg-toggle {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 999px;
+}
+
+.gg-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gg-toggle__track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 64px;
+  height: 30px;
+  border-radius: 999px;
+  background: #e4dcef;
+  box-shadow: inset 0 2px 4px rgba(58, 46, 79, 0.18);
+  transition: background 0.2s var(--ease-out);
+}
+
+.gg-toggle--on .gg-toggle__track {
+  background: linear-gradient(135deg, var(--c-sakura), var(--c-lavender));
+}
+
+.gg-toggle__text {
+  position: absolute;
+  right: 9px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--c-ink-soft);
+  pointer-events: none;
+}
+
+.gg-toggle--on .gg-toggle__text {
+  right: auto;
+  left: 10px;
+  color: #fff;
+}
+
+.gg-toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(58, 46, 79, 0.3);
+  transition: transform 0.25s var(--ease-spring);
+}
+
+.gg-toggle--on .gg-toggle__knob {
+  transform: translateX(34px);
+}
+
+.gg-toggle:not(:disabled):hover .gg-toggle__knob {
+  box-shadow:
+    0 2px 5px rgba(58, 46, 79, 0.3),
+    0 0 0 4px rgba(255, 126, 182, 0.2);
+}

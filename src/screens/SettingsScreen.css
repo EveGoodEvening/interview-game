@@ -1,0 +1,100 @@
+.cfg {
+  display: flex;
+  gap: 18px;
+  flex: 1;
+  min-height: 0;
+}
+
+.cfg__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 214px;
+  flex: none;
+  padding: 18px 0 4px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 244, 250, 0.72));
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 26px rgba(58, 36, 90, 0.12);
+}
+
+.cfg__side .gg-tabs--vertical {
+  padding-right: 18px;
+}
+
+.cfg__guide {
+  --guide-c: var(--c-sakura);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 10px;
+  animation: cfg-guide-in 0.4s var(--ease-out);
+}
+
+.cfg__bubble {
+  position: relative;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1.5px solid color-mix(in srgb, var(--guide-c) 45%, transparent);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--c-ink);
+  box-shadow: 0 4px 12px rgba(58, 36, 90, 0.1);
+}
+
+.cfg__bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  background: #fff;
+  border-right: 1.5px solid color-mix(in srgb, var(--guide-c) 45%, transparent);
+  border-bottom: 1.5px solid color-mix(in srgb, var(--guide-c) 45%, transparent);
+  transform: rotate(45deg);
+}
+
+.cfg__guide-portrait {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 6px 14px rgba(58, 36, 90, 0.2) !important;
+}
+
+.cfg__panel {
+  flex: 1;
+  min-width: 0;
+  padding: 18px 22px 22px 26px;
+  border-radius: 24px;
+  background: rgba(255, 252, 250, 0.93);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 26px rgba(58, 36, 90, 0.13);
+  animation: cfg-panel-in 0.3s var(--ease-out);
+}
+
+.cfg-tab {
+  display: flex;
+  flex-direction: column;
+}
+
+.cfg-tab > .gg-hint {
+  margin-top: 6px;
+}
+
+@keyframes cfg-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes cfg-guide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

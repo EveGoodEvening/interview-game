@@ -1,0 +1,14 @@
+.cfg-audio__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cfg-audio__label .gg-icon {
+  color: var(--c-lavender);
+}
+
+.cfg-audio__muted {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
