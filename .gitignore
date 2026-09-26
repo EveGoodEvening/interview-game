@@ -8,3 +8,8 @@ playwright-report
 coverage
 .DS_Store
 *.tsbuildinfo
+
+# art pipeline work files (codex outputs, tries, review sheets)
+tools/art/work
+
+__pycache__/

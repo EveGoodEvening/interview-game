@@ -9,7 +9,7 @@ A galgame-style AI mock interview: upload your résumé, pick an interviewer, an
 
 [中文](#中文) · [English](#english)
 
-![Interview scene: Yuki, the HR manager, happily reacting to an answer (Q4/5, affinity 68)](docs/screenshots/interview-dialogue.png)
+![Interview scene: Yuki, the HR manager, happily reacting to an answer](docs/screenshots/interview-dialogue.png)
 
 </div>
 
@@ -17,7 +17,7 @@ A galgame-style AI mock interview: upload your résumé, pick an interviewer, an
 |:-:|:-:|
 | ![Title screen](docs/screenshots/title.png) | ![Setup, step 1: choose your interviewer](docs/screenshots/setup-interviewer.png) |
 | 标题画面 · Title | 选择面试官 · Choose your interviewer |
-| ![Answering by voice with the question card pinned](docs/screenshots/interview-answer.png) | ![Ending CG: Perfect Offer, with the 内定 OFFER stamp](docs/screenshots/result-ending.png) |
+| ![Answering by voice with the question card pinned](docs/screenshots/interview-answer.png) | ![Ending CG: the Hired (录用) ending, with its stamp and the final score](docs/screenshots/result-ending.png) |
 | 语音作答 · Answering by voice | 结局 CG · Ending CG |
 | ![Interview report overview](docs/screenshots/report-overview.png) | ![Settings, LLM tab](docs/screenshots/settings-llm.png) |
 | 面试报告 · Report | 设置：AI 模型 · Settings: LLM |
@@ -55,7 +55,7 @@ A galgame-style AI mock interview: upload your résumé, pick an interviewer, an
 - **面试记录与结局回廊**：最近 30 场面试可以随时回看；3 位面试官 × 4 种结局，共 12 张结局卡等你收集。
 - **中英双语**：界面语言和面试语言分开设置，提问、朗读和识别都跟随面试语言。
 - **离线演示模式**：默认使用内置的脚本面试官，不需要 API Key，也不需要联网；它同样会从简历里提取关键词来提问、追问和打分，并生成完整报告。
-- **零外部资源**：立绘、背景和图标都由代码绘制（SVG / CSS），音乐和音效由 Web Audio 实时合成；不依赖 CDN 或在线字体，在中国大陆也能完整运行。
+- **精美立绘与背景**：三位面试官的立绘与全部场景由 AI 绘制（Codex CLI 的图像生成），表情、口型与眨眼都是同一张立绘上逐帧对齐的图层；音乐和音效由 Web Audio 实时合成。所有素材随游戏打包，不依赖 CDN 或在线字体，在中国大陆也能完整运行。
 
 ### 快速开始
 
@@ -242,12 +242,13 @@ DeepSeek 的 `deepseek-chat` / `deepseek-reasoner` 已于 2026-07-24 下线，Ki
 │  ├─ speech/         # TTS（浏览器 / API / 关闭）与 STT（浏览器 / API）
 │  ├─ resume/         # PDF / DOCX / TXT / MD 解析，示例简历
 │  ├─ audio/          # Web Audio 合成的 BGM 与音效
-│  ├─ art/            # SVG 立绘、表情、背景、特效
+│  ├─ art/            # 立绘（表情 / 口型 / 眨眼图层）、背景、特效；素材在 art/assets/
 │  ├─ screens/        # 标题、准备、面试、结果、记录、结局回廊、设置
 │  ├─ components/     # 对话框、HUD、作答面板、报告、UI 组件
 │  ├─ i18n/           # 中英文案（两种语言的键完全一致）
 │  └─ styles/         # 全局样式变量
 ├─ tests/e2e/         # Playwright 端到端测试
+├─ tools/art/         # 美术管线：用 Codex CLI 生成立绘 / 背景并打包（见 tools/art/README.md）
 └─ docs/              # DESIGN.md（设计规格）与截图
 ```
 
@@ -280,7 +281,7 @@ MIT © the authors
 
 ## English
 
-![An English interview: Ethan, the engineering director, asks about a project from the résumé](docs/screenshots/interview-english.png)
+![An English interview: Ethan, the engineering director, moving on to a deep dive into a project from the résumé](docs/screenshots/interview-english.png)
 
 - [Features](#features)
 - [Quick start](#quick-start)
@@ -311,7 +312,7 @@ MIT © the authors
 - **Records and endings gallery**: revisit your last 30 interviews; collect all 12 ending cards (3 interviewers × 4 endings).
 - **Chinese and English**: the UI language and the interview language are set separately; questions, speech and recognition follow the interview language.
 - **Offline demo mode**: the default interviewer is a built-in scripted one that needs no API key and no network. It still pulls keywords from your résumé to ask, follow up, score and write a full report.
-- **No external assets**: characters, backgrounds and icons are drawn in code (SVG / CSS), and music and sound effects are synthesized with Web Audio. No CDNs, no web fonts, so it works fully in mainland China too.
+- **Painted art, no external assets**: the three interviewers and every scene are painted with AI image generation (the Codex CLI's image tool); expressions, lip-sync and blinks are pixel-aligned layers over one sprite. Music and sound effects are synthesized with Web Audio. Everything ships with the game (no CDNs, no web fonts), so it works fully in mainland China too.
 
 ### Quick start
 
@@ -498,12 +499,13 @@ In terms of the topic average (0–10), the average each ending needs (rounded u
 │  ├─ speech/         # TTS (browser / API / off) and STT (browser / API)
 │  ├─ resume/         # PDF / DOCX / TXT / MD parsing, sample résumés
 │  ├─ audio/          # Web Audio BGM and sound effects
-│  ├─ art/            # SVG characters, expressions, backgrounds, effects
+│  ├─ art/            # sprites (expression / mouth / blink layers), backgrounds, effects; files in art/assets/
 │  ├─ screens/        # title, setup, interview, result, records, endings gallery, config
 │  ├─ components/     # dialogue box, HUD, answer panel, report, UI kit
 │  ├─ i18n/           # zh / en strings (identical keys in both languages)
 │  └─ styles/         # global design tokens
 ├─ tests/e2e/         # Playwright end-to-end tests
+├─ tools/art/         # art pipeline: generate sprites / backgrounds with the Codex CLI and pack them (tools/art/README.md)
 └─ docs/              # DESIGN.md (design spec) and screenshots
 ```
 

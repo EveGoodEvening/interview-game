@@ -16,7 +16,7 @@ const MIN_HOLD_MS = 55;
 /**
  * Lip-sync driver. Reads `levelRef.current` every animation frame and writes the
  * chosen shape to the `data-mouth` attribute of the sprite root (CSS shows the
- * matching pre-rendered mouth), so the SVG is never re-rendered by React.
+ * matching painted mouth patch, .cs-m1–3), so React never re-renders for it.
  * Falls back to procedural flapping while `speaking` and no real level arrives.
  */
 export function useMouthDriver(

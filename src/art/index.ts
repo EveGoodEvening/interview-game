@@ -1,6 +1,6 @@
 /**
- * Visual assets drawn in code (SVG/CSS) — characters, backgrounds, effects.
- * OWNER: art agent. Keep exported names and props stable.
+ * Visual assets — painted sprites and backgrounds (AI-generated, see tools/art/README.md) and
+ * CSS effects. OWNER: art agent. Keep exported names and props stable.
  */
 export { CharacterSprite, CharacterPortrait } from './characters/CharacterSprite';
 export type { CharacterSpriteProps, CharacterPortraitProps } from './characters/CharacterSprite';

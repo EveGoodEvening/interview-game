@@ -24,7 +24,8 @@ don't change them** (you may add new exports).
   (`components/ui/StageFrame.tsx`). Use px in stage coordinates. Screens fill the stage with
   `position:absolute; inset:0`. Modals render inside the stage (`components/ui/Modal.tsx`).
 - No external network assets (no Google Fonts, no CDN images) — the game must work offline in
-  demo mode and inside mainland China. All art is SVG/CSS drawn in code; all sound is Web Audio synthesis.
+  demo mode and inside mainland China. Sprites and backgrounds are painted WebP files bundled with the
+  game (generated offline with the Codex CLI image tool, `tools/art/`); all sound is Web Audio synthesis.
 - i18n: `useT()` → `t('namespace.key', vars)`. Each namespace file (`src/i18n/<ns>.ts`) has
   identical keys in `zh` and `en` (a test enforces parity). Never hard-code user-visible strings.
 - Tests: Vitest, co-located `*.test.ts(x)`. Default environment is `node`; component tests start
@@ -312,39 +313,57 @@ an answer is short/vague; scores by length, specifics (numbers, %, named tech), 
 
 ## 8. Art direction (`src/art/*`)
 
-Soft, pastel, anime visual-novel look. Clean vector style with cel shading (2-tone shadows),
-thin darker outlines, large expressive eyes with highlights, blush. Upper-body "tachie" sprites,
-viewBox 600×800 (fits a 640 px tall slot), facing the viewer, slight 3/4 feel optional.
+Soft, pastel, premium anime visual-novel look: painted upper-body "tachie" sprites (clean lineart,
+soft cel shading, luminous detailed eyes) and hand-painted-style backgrounds. All of it is generated
+with gpt-image through the Codex CLI and packed by `tools/art/build.py` (pipeline, prompts and how to
+regenerate: `tools/art/README.md`); the game ships only `src/art/assets/` (WebP + the generated
+`manifest.ts`), read through `src/art/lib/assets.ts`.
 
 | id | look | colors |
 |----|------|--------|
-| yuki (HR) | long dark-brown hair with soft waves, side-swept bangs, pink flower hair clip; gentle droopy eyes (rose-brown); cream cardigan over white blouse, small ribbon; holds nothing | accent `#f27ba5` |
-| ethan (tech director) | short neat black hair with blue sheen, slightly messy bangs; thin rectangular glasses; sharp calm eyes (steel blue); charcoal suit, dark turtleneck or white shirt + dark tie | accent `#4a90d9` |
-| haru (CEO) | short orange-auburn bob with a small side ponytail and ahoge; bright amber eyes, energetic grin; mustard hoodie under a navy blazer, lanyard badge | accent `#ff9f43` |
+| yuki (HR) | long dark-brown wavy hair, side-swept bangs, pink cherry-blossom hair clip; gentle droopy rose-brown eyes; cream knit cardigan over a white blouse with a pink ribbon bow | accent `#f27ba5` |
+| ethan (tech director) | short black hair with a blue sheen, tousled bangs; thin rectangular navy glasses; calm steel-blue eyes; charcoal suit, white shirt, navy tie | accent `#4a90d9` |
+| haru (CEO) | short orange bob with a side ponytail (light-blue bead tie) and an ahoge; bright amber eyes; mustard hoodie under an open navy blazer, lanyard with a blank badge | accent `#ff9f43` |
 
-- Expressions (all 7 for each character): neutral, smile, happy (eyes ^ ^ / big smile), thinking
-  (eyes look up-side, hand-to-chin optional or mouth line), serious (flat brows, firm mouth),
-  surprised (wide eyes, small o-mouth), troubled (worried brows, small sweat drop). Built from
-  swappable parts: brows, eyes, mouth, extras (blush, sweat, sparkle).
-- Blink every 2–6 s (randomized), lip-sync: 3–4 mouth shapes selected by level (closed / small / mid /
-  wide), per-expression mouth base. Idle breathing (subtle 1–2 px vertical bob on body/head).
-  Expression changes crossfade quickly (~150 ms) or snap with a tiny hop for happy/surprised.
-- `CharacterPortrait`: head-and-shoulders crop of the same drawing (reuse parts via the same component).
-- Brows over the bangs: the brow is drawn crisp and opaque; where it crosses the front hair, the hair
-  around it fades softly (4 faint steps, ≤ 4 units past the brow, peak opacity ≈ 0.37) towards the
-  forehead's shadow colour, clipped to the bangs — no pale glow, no SVG filters.
-- `still` prop on `CharacterPortrait` (no blink timer, effects drawn without animation, expression
-  changes snap) and `EndingBackground` (no petals, every CSS animation stopped): used by the Records
-  and Gallery thumbnails (`MiniCg`), which are still frames; only the big CG animates.
-- Backgrounds (fill parent, SVG or CSS, no images): `OfficeBackground` (interview room: big window with
-  city skyline, blinds, plant, whiteboard/bookshelf; décor tinted per company; `evening` variant with
-  sunset palette), `TitleBackground` (sakura trees / sky gradient / office building silhouette, gentle
-  parallax), `LobbyBackground` (soft blurred office lobby for menus), `EndingBackground` per ending
-  (perfect: golden sparkles; offer: bright spring day; pending: cloudy dusk; rejected: rainy blue night).
-  Backgrounds should be slightly soft/low-contrast so sprites and UI stand out.
+- **Sprite = layers over one base.** Canvas 1280 px high and at least 960 wide — wider where the
+  shoulders need it (Ethan: 1328); every character framed alike (same eye line and eye span, face
+  centred). In layout a `CharacterSprite` always takes a 3:4 box (height × 0.75) centred on the face: a
+  wider canvas overflows it equally on both sides (negative side margins), so screens place every
+  character the same way and must not assume the painting's width. Every frame is a pixel-aligned gpt-image *edit* of the base, shipped as a
+  feathered patch: `face-<expr>` (all seven share one rect and one mask, so any expression can fade in
+  over any other), `mouth-<expr>-<1|2|3>` talking frames (lips parted → open) and `blink-<expr>`
+  (absent where the painted eyes are already closed, e.g. Yuki's and Haru's ^ ^ happy eyes — no blink
+  timer then). `SpriteLayers` stacks them as `<img>`s at canvas-percentage boxes.
+- Expressions (all 7 for each character): neutral, smile, happy (beaming; eyes ^ ^ for Yuki and
+  Haru, a rare open smile for Ethan), thinking (eyes up to the side, pensive mouth), serious (lowered
+  brows, narrowed eyes, firm mouth), surprised (wide eyes, small o-mouth), troubled (worried brows,
+  uneasy mouth, a small sweat drop). Happy adds twinkling sparkles and surprised pops shock lines
+  beside the head (SVG overlay placed from the manifest's head box); happy and surprised hop.
+- Blink every 2–6 s (randomized) and lip-sync (closed / small / mid / wide, chosen from the TTS level,
+  or procedural flapping) only toggle `data-blink` / `data-mouth` on the sprite root; CSS shows the
+  matching layer, so React never re-renders for them. Idle breathing: a 0.35 % scale from the bottom
+  edge. Expression changes: the new face fades in over the old one (170 ms); each expression group is
+  its own stacking context, so the old group's mouth / blink never paints over the incoming face. The
+  hop is 1.75 % of the sprite height.
+- `CharacterSprite` warms the image cache with every layer of its character on mount, so the first
+  change to an expression never flashes.
+- `CharacterPortrait`: a square head-and-shoulders crop (manifest `portrait`) of the same layers.
+- `still` prop on `CharacterPortrait` (no blink timer, symbols drawn without animation, expression
+  changes snap) and `EndingBackground` (no petals, no drift / twinkle / rain animation): used by the
+  Records and Gallery thumbnails (`MiniCg`), which are still frames; only the big CG animates.
+- Backgrounds (fill parent, cover-fit `<img>`, 1672×941 paintings): `OfficeBackground` (per company
+  meeting room — Stellar Tech warm cream/pink, DeepBlue Engine cool blue-gray with a server room,
+  Clearsky Labs sunny brick loft; window on the left, calm wall in the centre behind the interviewer;
+  the `evening` painting is an aligned sunset edit of the day one and crossfades in over 2.4 s, together
+  with its own veil),
+  `TitleBackground` (sakura business district, slow Ken Burns drift), `LobbyBackground` (bright
+  atrium, pre-blurred, white veil for menus), `EndingBackground` per ending (perfect: golden rooftop +
+  glow + twinkles; offer: sakura plaza, bright spring day; pending: pedestrian bridge at cloudy dusk;
+  rejected: rainy night street + CSS rain). Soft veils / vignettes keep sprites and UI readable.
 - `SakuraPetals`: CSS-animated petals overlay, pointer-events none.
-- `ArtPreviewScreen` (`?screen=artPreview`): grid of all characters × expressions, portraits, each
-  background thumbnail and a "Still frames" section (the thumbnails' `still` variants) — used for visual QA.
+- `ArtPreviewScreen` (`?screen=artPreview`): grid of all characters × expressions (with lip-sync
+  controls), portraits, each background thumbnail and a "Still frames" section (the thumbnails'
+  `still` variants) — used for visual QA.
 
 ## 9. UI / screens
 
@@ -507,7 +526,8 @@ your own files and note it in your final report.
   there only a plain retry or Reload is possible. The interviewer AI (`src/ai`: demo banks, prompts, zod,
   LLM clients) is imported lazily by `store/game.ts`; `setInterviewerAIFactory` accepts sync or async
   factories. `ArtPreviewScreen` is imported directly (not re-exported from `art/index.ts`) so it stays
-  split. Entry chunk: ~910 kB → ~410 kB (gzip ~309 kB → ~135 kB).
+  split. Entry chunk: ~910 kB → ~390 kB (gzip ~309 kB → ~129 kB); the painted art is separate WebP files
+  (`?no-inline`, so even the tiny lip-sync patches never land in a chunk).
 - **Dev pre-bundling**: `vite.config.ts` `optimizeDeps.include` lists the lazily imported
   `pdfjs-dist/legacy/build/pdf.mjs`, `mammoth/mammoth.browser.js` and `@anthropic-ai/sdk` so the first
   upload / Claude call never triggers a dev reload (which would wipe the wizard). Claude's

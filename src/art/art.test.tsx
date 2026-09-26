@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { act, cleanup, render, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CHARACTER_IDS, ENDING_IDS, EXPRESSIONS } from '../types';
 import { EndingBackground, LobbyBackground, OfficeBackground, TitleBackground } from './backgrounds/Backgrounds';
-import { CharacterPortrait, CharacterSprite } from './characters/CharacterSprite';
-import { DESIGNS } from './characters/designs';
+import { CharacterPortrait, CharacterSprite, LAYOUT_ASPECT } from './characters/CharacterSprite';
+import { EXPRESSION_FADE_MS, canBlink } from './characters/SpriteLayers';
 import { useCrossfade } from './characters/hooks/useCrossfade';
 import { mouthLevelFor } from './characters/hooks/useMouthDriver';
 import { SakuraPetals, petalParams } from './effects/SakuraPetals';
-import { mirrorPath } from './lib/geom';
+import { backgroundUrl, spriteSheet, spriteUrl, spriteUrls, type BackgroundName, type Rect } from './lib/assets';
 import { mulberry32 } from './lib/random';
 
 afterEach(() => {
@@ -18,69 +18,136 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-/** Every url(#id) used in the document must point at an element that exists, and ids must be unique. */
-function checkSvgReferences(root: ParentNode) {
-  const ids = [...root.querySelectorAll('[id]')].map((el) => el.id);
-  const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
-  expect(dupes).toEqual([]);
-  const idSet = new Set(ids);
-  const missing: string[] = [];
-  for (const el of root.querySelectorAll('*')) {
-    for (const attr of ['fill', 'stroke', 'clip-path', 'mask', 'filter']) {
-      const v = el.getAttribute(attr);
-      const m = v?.match(/^url\(#(.+)\)$/);
-      if (m && !idSet.has(m[1])) missing.push(`${attr}=${v}`);
+/** A file next to this test (a variable, so Vite leaves `new URL(…, import.meta.url)` alone). */
+const local = (rel: string) => new URL(rel, import.meta.url);
+const readText = (rel: string) => readFileSync(local(rel), 'utf8');
+
+const imgs = (root: ParentNode, selector: string) => [...root.querySelectorAll<HTMLImageElement>(selector)];
+
+describe('art assets', () => {
+  const inside = ([x, y, w, h]: Rect, [cw, ch]: readonly [number, number]) => x >= 0 && y >= 0 && w > 0 && h > 0 && x + w <= cw && y + h <= ch;
+
+  it.each(CHARACTER_IDS)('the %s sprite sheet is complete and every layer fits the canvas', (id) => {
+    const sheet = spriteSheet(id);
+    // one height for everyone; the width fits the shoulders
+    expect(sheet.canvas[1]).toBe(1280);
+    expect(sheet.canvas[0]).toBeGreaterThanOrEqual(960);
+    expect(inside(sheet.face, sheet.canvas)).toBe(true);
+    const [px, py, edge] = sheet.portrait;
+    expect(inside([px, py, edge, edge], sheet.canvas)).toBe(true);
+    for (const expression of EXPRESSIONS) {
+      const frames = sheet.frames[expression];
+      expect(frames.mouth).toHaveLength(3);
+      for (const rect of frames.mouth) expect(inside(rect, sheet.canvas)).toBe(true);
+      if (frames.blink) expect(inside(frames.blink, sheet.canvas)).toBe(true);
     }
-  }
-  expect(missing).toEqual([]);
-}
+  });
+
+  it('has a blink frame for every expression except the ones painted with closed eyes', () => {
+    // mirrors CLOSED_EYES in tools/art/build.py
+    const closedEyes: Record<string, string[]> = { yuki: ['happy'], ethan: [], haru: ['happy'] };
+    for (const id of CHARACTER_IDS) {
+      const withoutBlink = EXPRESSIONS.filter((e) => !spriteSheet(id).frames[e].blink);
+      expect(withoutBlink).toEqual(closedEyes[id]);
+    }
+  });
+
+  it.each(CHARACTER_IDS)('ships exactly the %s files the sheet uses', (id) => {
+    const expected = spriteUrls(id).map((url) => decodeURIComponent(url.split('/').pop()!.split('?')[0]));
+    const onDisk = readdirSync(local(`./assets/characters/${id}`)).filter((f) => f.endsWith('.webp'));
+    expect([...onDisk].sort()).toEqual([...expected].sort());
+  });
+
+  it('has every background', () => {
+    const names: BackgroundName[] = [
+      ...CHARACTER_IDS.flatMap((id) => [`office-${id}-day`, `office-${id}-evening`] as const),
+      'title',
+      'lobby',
+      ...ENDING_IDS.map((e) => `ending-${e}` as const),
+    ];
+    for (const name of names) expect(backgroundUrl(name)).toMatch(new RegExp(`${name}\\.webp`));
+    const onDisk = readdirSync(local('./assets/backgrounds')).filter((f) => f.endsWith('.webp'));
+    expect(onDisk.sort()).toEqual(names.map((n) => `${n}.webp`).sort());
+  });
+});
 
 describe('CharacterSprite', () => {
-  it.each(CHARACTER_IDS)('renders every expression for %s', (id) => {
+  it.each(CHARACTER_IDS)('layers every expression for %s', (id) => {
     for (const expression of EXPRESSIONS) {
-      const { container, unmount } = render(<CharacterSprite characterId={id} expression={expression} />);
-      const svg = container.querySelector('svg')!;
-      expect(svg.getAttribute('viewBox')).toBe('0 0 600 800');
-      expect(svg.querySelectorAll('.cs-mouth')).toHaveLength(4);
-      expect(svg.getAttribute('data-expression')).toBe(expression);
+      const { container, unmount } = render(<CharacterSprite characterId={id} expression={expression} height={400} />);
+      const root = container.querySelector('.cs-sprite') as HTMLElement;
+      expect(root.getAttribute('data-expression')).toBe(expression);
+      expect(root.style.height).toBe('400px');
+      expect(root.getAttribute('role')).toBe('img');
+      expect(imgs(root, '.cs-base').map((i) => i.getAttribute('src'))).toEqual([spriteUrl(id, 'base')]);
+      expect(imgs(root, '.cs-face').map((i) => i.getAttribute('src'))).toEqual([spriteUrl(id, `face-${expression}`)]);
+      // each lip-sync level shows its own frame (level 1 = lips parted … 3 = open)
+      for (const k of [1, 2, 3] as const) {
+        expect(imgs(root, `.cs-mouth.cs-m${k}`).map((i) => i.getAttribute('src'))).toEqual([spriteUrl(id, `mouth-${expression}-${k}`)]);
+      }
+      const blink = spriteSheet(id).frames[expression].blink;
+      expect(imgs(root, '.cs-blink').map((i) => i.getAttribute('src'))).toEqual(blink ? [spriteUrl(id, `blink-${expression}`)] : []);
       unmount();
     }
   });
 
-  it('keeps SVG ids unique and resolvable with many instances on screen', () => {
-    const { container } = render(
-      <div>
-        {CHARACTER_IDS.map((id) => (
-          <CharacterSprite key={id} characterId={id} expression="happy" dimmed />
-        ))}
-        <CharacterSprite characterId="yuki" expression="troubled" />
-        <CharacterPortrait characterId="ethan" />
-        <CharacterPortrait characterId="ethan" expression="serious" shape="rounded" />
-        <CharacterPortrait characterId="haru" silhouette />
-        <OfficeBackground characterId="yuki" />
-        <OfficeBackground characterId="ethan" variant="evening" />
-        <OfficeBackground characterId="haru" />
-        <TitleBackground />
-        <LobbyBackground />
-        {ENDING_IDS.map((e) => (
-          <EndingBackground key={e} ending={e} />
-        ))}
-      </div>,
-    );
-    checkSvgReferences(container);
+  it('places every layer at its canvas rect, in percentages of the canvas', () => {
+    // Ethan's canvas is wider than 3:4, so swapped axes or a wrong divisor would show
+    const sheet = spriteSheet('ethan');
+    const [cw, ch] = sheet.canvas;
+    expect(cw).toBeGreaterThan(ch * LAYOUT_ASPECT);
+    const { container } = render(<CharacterSprite characterId="ethan" expression="troubled" />);
+    const check = (el: HTMLElement, [x, y, w, h]: readonly number[]) => {
+      expect(parseFloat(el.style.left)).toBeCloseTo((x / cw) * 100, 3);
+      expect(parseFloat(el.style.top)).toBeCloseTo((y / ch) * 100, 3);
+      expect(parseFloat(el.style.width)).toBeCloseTo((w / cw) * 100, 3);
+      expect(parseFloat(el.style.height)).toBeCloseTo((h / ch) * 100, 3);
+    };
+    check(imgs(container, '.cs-face')[0], sheet.face);
+    const frames = sheet.frames.troubled;
+    for (const k of [1, 2, 3] as const) check(imgs(container, `.cs-m${k}`)[0], frames.mouth[k - 1]);
+    check(imgs(container, '.cs-blink')[0], frames.blink!);
   });
 
-  it('crossfades expressions and settles on the new one', () => {
+  it('takes a 3:4 layout box centred on the face, whatever the canvas width', () => {
+    for (const id of CHARACTER_IDS) {
+      const [cw, ch] = spriteSheet(id).canvas;
+      const { container, unmount } = render(<CharacterSprite characterId={id} expression="neutral" height={640} />);
+      const root = container.querySelector('.cs-sprite') as HTMLElement;
+      expect(root.style.aspectRatio).toBe(`${cw} / ${ch}`);
+      const overflow = (cw / ch - LAYOUT_ASPECT) / 2;
+      if (overflow > 0) {
+        // painted width + 2 × (negative) margin = 640 × 3/4 (jsdom folds the calc() into px)
+        const margin = parseFloat(root.style.marginInline.replace(/^calc\(/, ''));
+        expect(margin).toBeLessThan(0);
+        expect(640 * (cw / ch) + 2 * margin).toBeCloseTo(640 * LAYOUT_ASPECT, 1);
+      } else expect(root.style.marginInline).toBe('');
+      unmount();
+    }
+  });
+
+  it('draws a manga symbol for happy (sparkles) and surprised (shock lines) only', () => {
+    const { container, rerender } = render(<CharacterSprite characterId="haru" expression="happy" />);
+    expect(container.querySelectorAll('.cs-sparkle')).toHaveLength(3);
+    rerender(<CharacterSprite characterId="haru" expression="surprised" />);
+    expect(container.querySelectorAll('.cs-shock line')).toHaveLength(3);
+    rerender(<CharacterSprite characterId="haru" expression="serious" />);
+    expect(container.querySelector('[data-part="symbols"]')).toBeNull();
+  });
+
+  it('crossfades expressions: the new face fades in over the old one, then the old one goes', () => {
     vi.useFakeTimers();
     const { container, rerender } = render(<CharacterSprite characterId="haru" expression="neutral" />);
     rerender(<CharacterSprite characterId="haru" expression="surprised" />);
-    expect(container.querySelectorAll('.cs-face-out')).not.toHaveLength(0);
-    expect(container.querySelectorAll('.cs-face-in')).not.toHaveLength(0);
+    const layers = [...container.querySelectorAll('.cs-expr')];
+    expect(layers.map((l) => l.getAttribute('data-expression'))).toEqual(['neutral', 'surprised']);
+    expect(layers[0].classList.contains('cs-face-out')).toBe(true);
+    expect(layers[1].classList.contains('cs-face-in')).toBe(true);
     act(() => {
       vi.advanceTimersByTime(400);
     });
-    expect(container.querySelectorAll('.cs-face-out')).toHaveLength(0);
-    checkSvgReferences(container);
+    expect([...container.querySelectorAll('.cs-expr')].map((l) => l.getAttribute('data-expression'))).toEqual(['surprised']);
+    expect(container.querySelectorAll('.cs-face-out, .cs-face-in')).toHaveLength(0);
   });
 
   it('drives the mouth from mouthLevelRef without re-rendering', () => {
@@ -135,6 +202,40 @@ describe('CharacterSprite', () => {
     });
     expect(root.hasAttribute('data-blink')).toBe(false);
   });
+
+  it('does not blink where the painted eyes are already closed', () => {
+    /** Every value data-blink took on the sprite root during 20 s. */
+    const blinksOver20s = (id: (typeof CHARACTER_IDS)[number], expression: (typeof EXPRESSIONS)[number]) => {
+      vi.useFakeTimers();
+      const { container, unmount } = render(<CharacterSprite characterId={id} expression={expression} />);
+      const root = container.querySelector('.cs-root')!;
+      const set = vi.spyOn(root, 'setAttribute');
+      act(() => {
+        vi.advanceTimersByTime(20_000);
+      });
+      const count = set.mock.calls.filter(([name]) => name === 'data-blink').length;
+      unmount();
+      vi.useRealTimers();
+      return count;
+    };
+    const closed = CHARACTER_IDS.flatMap((id) => EXPRESSIONS.filter((e) => !canBlink(id, e)).map((e) => [id, e] as const));
+    expect(closed.length).toBeGreaterThan(0);
+    for (const [id, expression] of closed) expect(blinksOver20s(id, expression)).toBe(0);
+    // control: an open-eyed face blinks several times in the same 20 s
+    expect(blinksOver20s('yuki', 'neutral')).toBeGreaterThan(2);
+  });
+
+  it('shows the frame the root attributes ask for (CSS contract)', () => {
+    const css = readText('./characters/CharacterSprite.css');
+    for (const k of [1, 2, 3]) expect(css).toContain(`.cs-root[data-mouth='${k}'] .cs-m${k}`);
+    expect(css).toContain('.cs-root[data-blink] .cs-blink');
+    expect(css).toMatch(/\.cs-mouth,\s*\.cs-blink\s*\{\s*visibility:\s*hidden;/);
+    // the fade in CSS is the one the crossfade waits for
+    expect(css).toMatch(new RegExp(`\\.cs-face-in \\{\\s*animation: cs-fade-in ${EXPRESSION_FADE_MS}ms`));
+    // an expression group's layers stay inside it (the old blink never paints over the new face)
+    expect(css).toMatch(/\.cs-expr \{[^}]*isolation: isolate;/);
+    expect(css).not.toMatch(/\.cs-blink \{[^}]*z-index/);
+  });
 });
 
 describe('mouthLevelFor', () => {
@@ -144,74 +245,43 @@ describe('mouthLevelFor', () => {
 });
 
 describe('CharacterPortrait', () => {
-  it('crops the same drawing into a square viewBox', () => {
+  it('crops the same sprite into the square frame', () => {
     const { container } = render(<CharacterPortrait characterId="haru" size={64} />);
-    const [, , w, h] = container.querySelector('svg')!.getAttribute('viewBox')!.split(' ').map(Number);
-    expect(w).toBe(h);
-    expect(w).toBe(DESIGNS.haru.portraitCrop[2]);
-    expect((container.firstChild as HTMLElement).style.width).toBe('64px');
-  });
-});
-
-describe('brows over the bangs (see-through hair)', () => {
-  /** Opacity where every band overlaps (right at the brow edge). */
-  const peakOpacity = (ops: number[]) => 1 - ops.reduce((acc, o) => acc * (1 - o), 1);
-
-  it.each(CHARACTER_IDS)('%s: a tight, brow-shaped, skin-tinted window clipped to the front hair — no glow blob or light rim', (id) => {
-    const design = DESIGNS[id];
-    for (const expression of EXPRESSIONS) {
-      const { container, unmount } = render(<CharacterSprite characterId={id} expression={expression} />);
-      const brows = container.querySelector('[data-part="brows"]')!;
-      // the old look: a blurry radial-gradient ellipse per brow and a pale halo stroke on the brow
-      expect(brows.querySelectorAll('ellipse')).toHaveLength(0);
-      expect(container.querySelector('[id$="-browglow"]')).toBeNull();
-      const fill = brows.lastElementChild!;
-      expect(fill.getAttribute('fill')).toBe(design.brows.color);
-      expect(fill.hasAttribute('stroke')).toBe(false);
-      const browDs = [...fill.querySelectorAll('path')].map((p) => p.getAttribute('d'));
-      expect(browDs).toHaveLength(2);
-
-      // the see-through window: the forehead's shadow tone, only where the bangs are
-      const see = brows.querySelector('[data-part="brows-see-through"]')!;
-      expect(see.getAttribute('stroke')).toBe(design.skin.shade);
-      expect(see.getAttribute('fill')).toBe('none');
-      const clipId = see.getAttribute('clip-path')!.match(/^url\(#(.+)\)$/)![1];
-      const clip = container.querySelector(`[id="${clipId}"]`)!;
-      expect(clip.tagName.toLowerCase()).toBe('clippath');
-      expect([...clip.querySelectorAll('path')].map((p) => p.getAttribute('d'))).toEqual(design.bangShadow.shapes);
-
-      // it follows each brow's own outline, reaches at most 4 units past it and stays faint
-      const bands = [...see.querySelectorAll('path')];
-      expect(bands.length).toBeGreaterThan(0);
-      for (const d of browDs) {
-        const own = bands.filter((b) => b.getAttribute('d') === d);
-        expect(own.length).toBe(bands.length / 2);
-        expect(Math.max(...own.map((b) => Number(b.getAttribute('stroke-width')) / 2))).toBeLessThanOrEqual(4);
-        const peak = peakOpacity(own.map((b) => Number(b.getAttribute('stroke-opacity'))));
-        expect(peak).toBeGreaterThan(0.25); // still reads on Ethan's near-black hair
-        expect(peak).toBeLessThanOrEqual(0.4); // never a white smear
-      }
-      checkSvgReferences(container);
-      unmount();
-    }
+    const frame = container.firstChild as HTMLElement;
+    expect(frame.style.width).toBe('64px');
+    expect(frame.style.height).toBe('64px');
+    const [px, py, edge] = spriteSheet('haru').portrait;
+    const [cw, ch] = spriteSheet('haru').canvas;
+    const stage = container.querySelector('.cp-portrait__stage') as HTMLElement;
+    expect(parseFloat(stage.style.width)).toBeCloseTo((cw / edge) * 100, 3);
+    expect(parseFloat(stage.style.height)).toBeCloseTo((ch / edge) * 100, 3);
+    expect(parseFloat(stage.style.left)).toBeCloseTo((-px / edge) * 100, 3);
+    expect(parseFloat(stage.style.top)).toBeCloseTo((-py / edge) * 100, 3);
+    expect(imgs(stage, '.cs-face').map((i) => i.getAttribute('src'))).toEqual([spriteUrl('haru', 'face-smile')]);
   });
 
-  it('the portrait crop carries the same clip, so thumbnails get the same brows', () => {
-    const { container } = render(<CharacterPortrait characterId="yuki" expression="surprised" size={96} />);
-    expect(container.querySelector('[data-part="brows-see-through"]')).not.toBeNull();
-    checkSvgReferences(container);
+  it('draws silhouettes without blinking', () => {
+    vi.useFakeTimers();
+    const { container } = render(<CharacterPortrait characterId="ethan" silhouette size={96} />);
+    expect((container.firstChild as HTMLElement).classList.contains('cp-portrait--silhouette')).toBe(true);
+    expect(vi.getTimerCount()).toBe(0);
   });
 });
 
 describe('useCrossfade', () => {
   it('keeps the outgoing value for the fade, and snaps when disabled (even mid-fade)', () => {
     vi.useFakeTimers();
-    const { result, rerender } = renderHook(({ v, on }) => useCrossfade(v, 170, on), { initialProps: { v: 'a', on: true } });
+    const { result, rerender } = renderHook(({ v, on }) => useCrossfade(v, 100, on), { initialProps: { v: 'a', on: true } });
     rerender({ v: 'b', on: true });
     expect(result.current).toEqual({ current: 'b', previous: 'a' });
-    rerender({ v: 'b', on: false }); // switched off mid-fade: the stale outgoing face goes at once
+    rerender({ v: 'b', on: false });
     expect(result.current).toEqual({ current: 'b', previous: null });
-    rerender({ v: 'b', on: true }); // and does not come back when switched on again
+    // switching back on does not bring the dropped outgoing value back
+    rerender({ v: 'b', on: true });
+    expect(result.current).toEqual({ current: 'b', previous: null });
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
     expect(result.current.previous).toBeNull();
     rerender({ v: 'c', on: false });
     expect(result.current).toEqual({ current: 'c', previous: null });
@@ -219,14 +289,14 @@ describe('useCrossfade', () => {
     rerender({ v: 'd', on: true });
     expect(result.current).toEqual({ current: 'd', previous: 'c' });
     act(() => {
-      vi.advanceTimersByTime(170);
+      vi.advanceTimersByTime(100);
     });
     expect(result.current).toEqual({ current: 'd', previous: null });
   });
 });
 
 /** Class names that start a CSS animation (loops, pop-ins, crossfades). */
-const ANIMATED_CLASS = /\b(cs-(sparkle|sweat|shock|face-in|face-out|bob-body|bob-head)|bg-(drift|parallax-far|parallax-near|sway|float|twinkle|spin|blink|rain)|sp-(fall|sway|spin))\b/;
+const ANIMATED_CLASS = /\b(cs-(sparkle|shock|face-in|breathe)|bg-(drift|twinkle|rain__fall)|sp-(fall|sway|spin))\b/;
 
 function animatedElements(root: ParentNode): string[] {
   return [...root.querySelectorAll('[class]')].map((el) => el.getAttribute('class')!).filter((c) => ANIMATED_CLASS.test(c));
@@ -240,12 +310,12 @@ describe('still thumbnails', () => {
     const root = container.firstChild as HTMLElement;
     expect(root.classList.contains('cp-portrait--still')).toBe(true);
     // the sparkles are still drawn (the frame looks complete), just not animated
-    expect(container.querySelectorAll('[data-part="symbols"] path')).not.toHaveLength(0);
+    expect(container.querySelectorAll('[data-part="symbols"] path')).toHaveLength(3);
     expect(animatedElements(container)).toEqual([]);
     for (const expression of ['troubled', 'surprised', 'neutral'] as const) {
       rerender(<CharacterPortrait characterId="haru" expression={expression} size={120} still />);
+      expect(container.querySelectorAll('.cs-expr')).toHaveLength(1);
       expect(container.querySelectorAll('.cs-face-out, .cs-face-in')).toHaveLength(0);
-      expect(container.querySelectorAll('[data-part="brows"]')).toHaveLength(1);
       expect(animatedElements(container)).toEqual([]);
       expect(vi.getTimerCount()).toBe(0);
     }
@@ -253,7 +323,6 @@ describe('still thumbnails', () => {
       vi.advanceTimersByTime(10_000);
     });
     expect(container.querySelector('.cs-root')!.hasAttribute('data-blink')).toBe(false);
-    checkSvgReferences(container);
   });
 
   it('CharacterPortrait without still keeps blinking and animating', () => {
@@ -271,22 +340,57 @@ describe('still thumbnails', () => {
       const layer = container.querySelector('.bg-layer')!;
       expect(layer.classList.contains('bg-still')).toBe(true);
       expect(container.querySelector('.sp-layer')).toBeNull();
-      // the scene itself is complete (sky, skyline, props)
-      expect(layer.querySelectorAll('svg path, svg rect, svg circle').length).toBeGreaterThan(20);
+      expect(animatedElements(container)).toEqual([]);
+      // the scene itself is complete
+      expect(imgs(layer, '.bg-layer__img').map((i) => i.getAttribute('src'))).toEqual([backgroundUrl(`ending-${ending}`)]);
       unmount();
     }
     // the rules that hold every descendant still
-    const css = (file: string) => readFileSync(new URL(file, import.meta.url), 'utf8');
-    const backgroundsCss = css('./backgrounds/Backgrounds.css');
-    const spriteCss = css('./characters/CharacterSprite.css');
-    expect(backgroundsCss).toMatch(/\.bg-still \*\s*\{\s*animation:\s*none !important;\s*\}/);
-    expect(spriteCss).toMatch(/\.cp-portrait--still \*\s*\{\s*animation:\s*none !important;\s*\}/);
+    const css = readText;
+    expect(css('./backgrounds/Backgrounds.css')).toMatch(/\.bg-still \*\s*\{\s*animation:\s*none !important;\s*\}/);
+    expect(css('./characters/CharacterSprite.css')).toMatch(/\.cp-portrait--still \*\s*\{\s*animation:\s*none !important;\s*\}/);
   });
 
-  it('EndingBackground keeps its petals when animated', () => {
+  it('EndingBackground keeps its petals and effects when animated', () => {
     const { container } = render(<EndingBackground ending="offer" />);
     expect(container.querySelector('.bg-layer')!.classList.contains('bg-still')).toBe(false);
     expect(container.querySelectorAll('.sp-fall')).toHaveLength(16);
+    cleanup();
+    const rain = render(<EndingBackground ending="rejected" />);
+    expect(rain.container.querySelectorAll('.bg-rain__fall')).toHaveLength(2);
+    cleanup();
+    const perfect = render(<EndingBackground ending="perfect" />);
+    expect(perfect.container.querySelectorAll('.bg-twinkle').length).toBeGreaterThan(5);
+  });
+});
+
+describe('backgrounds', () => {
+  it('OfficeBackground stacks the day and evening paintings and crossfades by class', () => {
+    const { container, rerender } = render(<OfficeBackground characterId="ethan" />);
+    const layer = () => container.querySelector('.bg-layer') as HTMLElement;
+    expect(layer().getAttribute('data-testid')).toBe('bg-office-ethan-day');
+    expect(imgs(layer(), '.bg-layer__img').map((i) => i.getAttribute('src'))).toEqual([
+      backgroundUrl('office-ethan-day'),
+      backgroundUrl('office-ethan-evening'),
+    ]);
+    // the evening painting and its veil fade in together (gradients cannot be transitioned)
+    const evening = layer().querySelector('.bg-office__evening')!;
+    expect(evening.querySelector('.bg-veil--office-evening')).not.toBeNull();
+    expect(evening.querySelector('img')!.getAttribute('src')).toBe(backgroundUrl('office-ethan-evening'));
+    expect(layer().classList.contains('bg-office--day')).toBe(true);
+    rerender(<OfficeBackground characterId="ethan" variant="evening" />);
+    expect(layer().getAttribute('data-testid')).toBe('bg-office-ethan-evening');
+    expect(layer().classList.contains('bg-office--evening')).toBe(true);
+  });
+
+  it('title and lobby are decorative, non-interactive layers', () => {
+    for (const el of [<TitleBackground key="t" />, <LobbyBackground key="l" />]) {
+      const { container, unmount } = render(el);
+      const layer = container.querySelector('.bg-layer')!;
+      expect(layer.getAttribute('aria-hidden')).toBe('true');
+      expect(imgs(layer, 'img').every((i) => i.getAttribute('alt') === '')).toBe(true);
+      unmount();
+    }
   });
 });
 
@@ -300,14 +404,6 @@ describe('SakuraPetals', () => {
     expect(petalParams(6)).toEqual(petalParams(6));
     const { container } = render(<SakuraPetals count={7} />);
     expect(container.querySelectorAll('.sp-fall')).toHaveLength(7);
-  });
-});
-
-describe('geometry helpers', () => {
-  it('mirrors absolute paths around x = 300', () => {
-    expect(mirrorPath('M 200 10 C 210 20 220 30 230 40 L 100 5 Z')).toBe('M 400 10 C 390 20 380 30 370 40 L 500 5 Z');
-    expect(() => mirrorPath('m 1 2')).toThrow();
-    expect(() => mirrorPath('M 0 0 A 5 5 0 0 1 10 0')).toThrow();
   });
 
   it('seeded random is repeatable', () => {

@@ -24,7 +24,7 @@
   filter: drop-shadow(0 14px 28px rgba(30, 15, 60, 0.3));
   animation: res-sprite-in 1s var(--ease-out) 0.2s both;
 }
-.res-sprite > svg {
+.res-sprite > .cs-sprite {
   display: block;
 }
 

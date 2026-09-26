@@ -4,8 +4,8 @@ const CLOSE_MS = 120;
 
 /**
  * Random blinking (every 2–6 s, sometimes a double blink). Toggles the
- * `data-blink` attribute on the sprite root; CSS swaps open/closed eye groups,
- * so React never re-renders for a blink.
+ * `data-blink` attribute on the sprite root; CSS then shows the expression's painted
+ * closed-eyes patch (.cs-blink), so React never re-renders for a blink.
  */
 export function useBlink(rootRef: RefObject<Element | null>, enabled: boolean): void {
   useEffect(() => {

@@ -1,14 +1,13 @@
-import { memo, useRef, type CSSProperties } from 'react';
+import { memo, useEffect, useRef, type CSSProperties } from 'react';
 import { CHARACTERS } from '../../characters';
 import { useUiLang } from '../../i18n';
 import type { CharacterId, Expression } from '../../types';
-import { useSvgUid } from '../lib/svgId';
-import { CharacterArt } from './CharacterArt';
-import { DESIGNS } from './designs';
-import { FACE_SPECS } from './expressions';
+import { preloadSprite, spriteSheet } from '../lib/assets';
+import { EXPRESSION_MOTION } from './expressions';
 import { useBlink } from './hooks/useBlink';
 import { useHop } from './hooks/useHop';
 import { useMouthDriver } from './hooks/useMouthDriver';
+import { SpriteLayers, canBlink } from './SpriteLayers';
 import './CharacterSprite.css';
 
 export interface CharacterSpriteProps {
@@ -18,14 +17,20 @@ export interface CharacterSpriteProps {
   speaking?: boolean;
   /** Real-time mouth openness 0–1, read every animation frame (e.g. from TTS amplitude). */
   mouthLevelRef?: { current: number };
-  /** Rendered height (px or CSS length). Width follows the sprite's aspect ratio (≈ 3:4 upper body). */
+  /**
+   * Rendered height (px or CSS length). The layout box is always 3:4 (height × 0.75) and centred on
+   * the face; a character whose canvas is wider (broad shoulders) overflows it equally on both sides.
+   */
   height?: number | string;
   /** Darken slightly (not the active speaker / background character). */
   dimmed?: boolean;
   className?: string;
 }
 
-const hopsOn = (e: Expression) => FACE_SPECS[e].hop;
+const hopsOn = (e: Expression) => EXPRESSION_MOTION[e].hop;
+
+/** Width / height of the box a sprite takes in layout, whatever its canvas. */
+export const LAYOUT_ASPECT = 3 / 4;
 
 function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(' ');
@@ -33,8 +38,8 @@ function cx(...parts: (string | false | null | undefined)[]): string {
 
 /**
  * Upper-body standing sprite ("tachie") with blinking, expressions and lip-sync.
- * Memoised: blinking and lip-sync never re-render React, so a parent re-rendering
- * (e.g. a typewriter) costs nothing here as long as props are stable.
+ * Memoised: blinking and lip-sync only toggle attributes on the root (CSS shows the matching
+ * layer), so they never re-render React.
  */
 export const CharacterSprite = memo(function CharacterSprite({
   characterId,
@@ -45,30 +50,38 @@ export const CharacterSprite = memo(function CharacterSprite({
   dimmed = false,
   className,
 }: CharacterSpriteProps) {
-  const design = DESIGNS[characterId];
   const lang = useUiLang();
-  const uid = useSvgUid('cs');
-  const rootRef = useRef<SVGGElement>(null);
-  const hopRef = useRef<SVGGElement>(null);
-  useBlink(rootRef, FACE_SPECS[expression].eyes.mode === 'open');
+  const [cw, ch] = spriteSheet(characterId).canvas;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const hopRef = useRef<HTMLDivElement>(null);
+  useBlink(rootRef, canBlink(characterId, expression));
   useMouthDriver(rootRef, speaking, mouthLevelRef);
   useHop(hopRef, expression, hopsOn);
+  useEffect(() => preloadSprite(characterId), [characterId]);
+  const h = typeof height === 'number' ? `${height}px` : height;
+  // Negative side margins bring a wider canvas back to a 3:4 layout box, so screens can place every
+  // character the same way (the face is centred in every canvas).
+  const overflow = (cw / ch - LAYOUT_ASPECT) / 2;
+  const style: CSSProperties = {
+    height: h,
+    aspectRatio: `${cw} / ${ch}`,
+    ...(overflow > 0 ? { marginInline: `calc(${h} * ${(-overflow).toFixed(5)})` } : null),
+  };
   return (
-    <svg
+    <div
       className={cx('cs-sprite', dimmed && 'cs-sprite--dimmed', className)}
-      viewBox="0 0 600 800"
-      style={{ height: typeof height === 'number' ? `${height}px` : height }}
+      style={style}
       role="img"
       aria-label={CHARACTERS[characterId].name[lang]}
       data-character={characterId}
       data-expression={expression}
     >
-      <g ref={hopRef}>
-        <g ref={rootRef} className="cs-root">
-          <CharacterArt design={design} expression={expression} uid={uid} breathing />
-        </g>
-      </g>
-    </svg>
+      <div ref={hopRef} className="cs-hop">
+        <div ref={rootRef} className="cs-root cs-breathe">
+          <SpriteLayers id={characterId} expression={expression} />
+        </div>
+      </div>
+    </div>
   );
 });
 
@@ -84,12 +97,12 @@ export interface CharacterPortraitProps {
   silhouette?: boolean;
   /**
    * Static frame for thumbnails (Records, Gallery grid): no blink timer, no looping
-   * sparkle / sweat / surprise animations and no expression crossfade.
+   * symbol animations and no expression crossfade.
    */
   still?: boolean;
 }
 
-/** Head-and-shoulders crop for cards, name plates and the backlog. */
+/** Head-and-shoulders crop of the same sprite, for cards, name plates and the backlog. */
 export const CharacterPortrait = memo(function CharacterPortrait({
   characterId,
   expression = 'smile',
@@ -99,13 +112,20 @@ export const CharacterPortrait = memo(function CharacterPortrait({
   silhouette = false,
   still = false,
 }: CharacterPortraitProps) {
-  const design = DESIGNS[characterId];
   const c = CHARACTERS[characterId];
   const lang = useUiLang();
-  const uid = useSvgUid('cp');
-  const rootRef = useRef<SVGGElement>(null);
-  useBlink(rootRef, !still && !silhouette && size >= 40 && FACE_SPECS[expression].eyes.mode === 'open');
-  const [x, y, s] = design.portraitCrop;
+  const sheet = spriteSheet(characterId);
+  const rootRef = useRef<HTMLDivElement>(null);
+  useBlink(rootRef, !still && !silhouette && size >= 40 && canBlink(characterId, expression));
+  const [px, py, edge] = sheet.portrait;
+  const [cw, ch] = sheet.canvas;
+  // The whole canvas, scaled so the crop square fills the frame (top/left % of a square = of its edge).
+  const stage: CSSProperties = {
+    width: `${(cw / edge) * 100}%`,
+    height: `${(ch / edge) * 100}%`,
+    left: `${(-px / edge) * 100}%`,
+    top: `${(-py / edge) * 100}%`,
+  };
   const style = { width: size, height: size, '--cp-accent': c.themeColor } as CSSProperties;
   return (
     <div
@@ -113,11 +133,11 @@ export const CharacterPortrait = memo(function CharacterPortrait({
       style={style}
       data-character={characterId}
     >
-      <svg viewBox={`${x} ${y} ${s} ${s}`} className="cp-portrait__art" role="img" aria-label={c.name[lang]}>
-        <g ref={rootRef} className="cs-root">
-          <CharacterArt design={design} expression={expression} uid={uid} breathing={false} still={still} />
-        </g>
-      </svg>
+      <div className="cp-portrait__art" role="img" aria-label={c.name[lang]}>
+        <div ref={rootRef} className="cs-root cp-portrait__stage" style={stage}>
+          <SpriteLayers id={characterId} expression={expression} still={still} />
+        </div>
+      </div>
     </div>
   );
 });

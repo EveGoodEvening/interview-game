@@ -4,105 +4,126 @@
   overflow: hidden;
   pointer-events: none;
   z-index: var(--z-bg);
+  background: #e9e4f2;
 }
 
-.bg-layer__svg {
+.bg-layer__img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: cover;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* ── ambient motion ──────────────────────────────────────────────────── */
+/* ── ambient motion: a slow Ken Burns drift over the painting ───────── */
 .bg-drift {
-  animation: bg-drift 38s ease-in-out infinite alternate;
+  transform-origin: 58% 45%;
+  animation: bg-drift 44s ease-in-out infinite alternate;
 }
 
 .bg-drift--slow {
-  animation-duration: 46s;
-}
-
-.bg-drift--slower {
-  animation-duration: 70s;
-  animation-direction: alternate-reverse;
+  animation-duration: 60s;
 }
 
 @keyframes bg-drift {
   from {
-    transform: translateX(-36px);
+    transform: scale(1.015) translate(0, 0);
   }
   to {
-    transform: translateX(36px);
+    transform: scale(1.06) translate(-0.8%, -0.5%);
   }
 }
 
-.bg-parallax-far {
-  animation: bg-parallax 30s ease-in-out infinite alternate;
+/* ── office: day → evening crossfade, soft haze so the sprite and UI pop ── */
+.bg-office__evening {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 2.4s ease;
 }
 
-.bg-parallax-near {
-  animation: bg-parallax 30s ease-in-out infinite alternate;
-  animation-name: bg-parallax-near;
+.bg-office--evening .bg-office__evening {
+  opacity: 1;
 }
 
-@keyframes bg-parallax {
+.bg-veil {
+  position: absolute;
+  inset: 0;
+}
+
+.bg-veil--office-day {
+  background:
+    radial-gradient(ellipse 80% 75% at 50% 42%, transparent 55%, rgba(38, 24, 64, 0.2) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+}
+
+/* the evening veil sits inside .bg-office__evening, so it fades in with the sunset painting */
+.bg-veil--office-evening {
+  background: radial-gradient(ellipse 80% 75% at 50% 42%, transparent 50%, rgba(48, 22, 70, 0.3) 100%);
+}
+
+.bg-veil--lobby {
+  background:
+    linear-gradient(90deg, rgba(255, 248, 252, 0.34), rgba(255, 248, 252, 0.12) 60%, rgba(255, 248, 252, 0.22)),
+    radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(60, 40, 90, 0.12) 100%);
+}
+
+/* ── endings ─────────────────────────────────────────────────────────── */
+.bg-veil--perfect,
+.bg-veil--offer {
+  background: radial-gradient(ellipse 85% 80% at 50% 45%, transparent 60%, rgba(70, 40, 20, 0.16) 100%);
+}
+
+.bg-veil--pending {
+  background: radial-gradient(ellipse 85% 80% at 50% 45%, transparent 55%, rgba(40, 32, 70, 0.22) 100%);
+}
+
+.bg-veil--rejected {
+  background:
+    linear-gradient(rgba(60, 80, 150, 0.06), rgba(60, 80, 150, 0.06)),
+    radial-gradient(ellipse 85% 80% at 50% 45%, transparent 45%, rgba(8, 12, 36, 0.36) 100%);
+}
+
+/* perfect: breathing golden light from the sun + twinkles */
+.bg-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 36% 26%, rgba(255, 238, 176, 0.5) 0%, rgba(255, 220, 140, 0.18) 28%, transparent 52%);
+  mix-blend-mode: screen;
+  animation: bg-glow 5s ease-in-out infinite alternate;
+}
+
+.bg-glow--still {
+  animation: none;
+  opacity: 0.8;
+}
+
+@keyframes bg-glow {
   from {
-    transform: translateX(-6px);
+    opacity: 0.55;
   }
   to {
-    transform: translateX(6px);
-  }
-}
-
-@keyframes bg-parallax-near {
-  from {
-    transform: translateX(-14px);
-  }
-  to {
-    transform: translateX(14px);
-  }
-}
-
-.bg-sway {
-  transform-box: view-box;
-  transform-origin: 0 0;
-  animation: bg-sway 7s ease-in-out infinite alternate;
-}
-
-.bg-sway--alt {
-  transform-origin: 1280px 0;
-  animation-duration: 8.5s;
-  animation-direction: alternate-reverse;
-}
-
-@keyframes bg-sway {
-  from {
-    transform: rotate(-0.8deg);
-  }
-  to {
-    transform: rotate(0.8deg);
-  }
-}
-
-.bg-float {
-  animation: bg-float 12s ease-in-out infinite alternate;
-}
-
-@keyframes bg-float {
-  from {
-    transform: translate(0, 8px);
-    opacity: 0.7;
-  }
-  to {
-    transform: translate(0, -10px);
     opacity: 1;
   }
 }
 
+.bg-sparkles {
+  position: absolute;
+  inset: 0;
+}
+
+.bg-sparkle {
+  position: absolute;
+  overflow: visible;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 4px rgba(255, 226, 150, 0.9));
+}
+
 .bg-twinkle {
-  transform-box: fill-box;
-  transform-origin: center;
   animation: bg-twinkle 3s ease-in-out infinite;
 }
 
@@ -118,43 +139,48 @@
   }
 }
 
-.bg-spin {
-  animation: bg-spin 90s linear infinite;
-}
-
-@keyframes bg-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.bg-blink {
-  animation: bg-blink 1.6s steps(2, jump-none) infinite;
-}
-
-@keyframes bg-blink {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.25;
-  }
-}
-
+/* rejected: two sheets of rain streaks sliding down one tile per loop */
 .bg-rain {
-  animation: bg-rain 0.9s linear infinite;
+  position: absolute;
+  inset: -20% -10%;
+  transform: rotate(9deg);
 }
 
-.bg-rain--far {
-  animation-duration: 1.4s;
+.bg-rain__sheet {
+  --tile: 180px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-1 * var(--tile));
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg stroke='%23dfe8ff' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M12 8v20M40 110v16M66 40v24M88 150v14M104 70v22M128 12v18M150 120v26M170 60v16M24 72v18M56 150v22M118 138v15M142 32v20M78 96v18M8 128v24M162 158v14M96 8v16M32 40v14M136 88v18'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: var(--tile) var(--tile);
+}
+
+.bg-rain__fall {
+  animation: bg-rain 0.7s linear infinite;
+  will-change: transform;
+}
+
+.bg-rain__sheet--far {
+  --tile: 120px;
+  opacity: 0.35;
+}
+
+.bg-rain__sheet--far.bg-rain__fall {
+  animation-duration: 1.1s;
+}
+
+.bg-rain__sheet--near {
+  opacity: 0.55;
 }
 
 @keyframes bg-rain {
   from {
-    transform: translate(0, 0);
+    transform: translateY(0);
   }
   to {
-    transform: translate(-158px, 720px);
+    transform: translateY(var(--tile));
   }
 }
 

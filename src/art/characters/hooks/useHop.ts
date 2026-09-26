@@ -13,13 +13,14 @@ export function useHop<T>(targetRef: RefObject<Element | null>, trigger: T, shou
     const el = targetRef.current;
     if (!el || !shouldHop(trigger) || typeof el.animate !== 'function' || prefersReducedMotion(el)) return;
     // No cleanup: the hop is short and must not be cut off by unrelated re-renders.
+    // Percentages of the element's own height, so the hop scales with the sprite (1.75 % ≈ 11 px at 620 px).
     el.animate(
       [
-        { transform: 'translateY(0px)' },
-        { transform: 'translateY(-14px)', offset: 0.35 },
-        { transform: 'translateY(0px)', offset: 0.7 },
-        { transform: 'translateY(-3px)', offset: 0.85 },
-        { transform: 'translateY(0px)' },
+        { transform: 'translateY(0)' },
+        { transform: 'translateY(-1.75%)', offset: 0.35 },
+        { transform: 'translateY(0)', offset: 0.7 },
+        { transform: 'translateY(-0.375%)', offset: 0.85 },
+        { transform: 'translateY(0)' },
       ],
       { duration: 380, easing: 'ease-out' },
     );

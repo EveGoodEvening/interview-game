@@ -33,7 +33,7 @@
 .iv-sprite__in {
   animation: iv-sprite-in 0.8s var(--ease-out);
 }
-.iv-sprite__in > svg {
+.iv-sprite__in > .cs-sprite {
   display: block;
 }
 .iv-sprite--aside {

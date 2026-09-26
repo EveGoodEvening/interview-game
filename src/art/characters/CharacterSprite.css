@@ -1,77 +1,82 @@
 /* ── sprite ─────────────────────────────────────────────────────────── */
 .cs-sprite {
+  position: relative;
   display: block;
   width: auto;
-  aspect-ratio: 3 / 4;
-  overflow: visible;
+  /* aspect-ratio comes from the character's canvas (inline) */
   transition: filter 280ms var(--ease-out);
+  user-select: none;
 }
 
 .cs-sprite--dimmed {
   filter: brightness(0.6) saturate(0.78);
 }
 
-/* idle breathing: body and head bob slightly out of phase */
-.cs-bob-body {
-  animation: cs-bob-body 4.4s ease-in-out infinite;
+.cs-hop,
+.cs-root {
+  position: absolute;
+  inset: 0;
 }
 
-.cs-bob-head {
-  animation: cs-bob-head 4.4s ease-in-out 0.18s infinite;
+/* layer z-order stays inside the sprite */
+.cs-root {
+  isolation: isolate;
 }
 
-@keyframes cs-bob-body {
+/* idle breathing: the shoulders rise a hair (scaled from the bottom edge) */
+.cs-breathe {
+  transform-origin: 50% 100%;
+  animation: cs-breathe 4.4s ease-in-out infinite;
+}
+
+@keyframes cs-breathe {
   0%,
   100% {
-    transform: translateY(0);
+    transform: scale(1);
   }
   50% {
-    transform: translateY(-1.2px);
+    transform: scale(1.0035);
   }
 }
 
-@keyframes cs-bob-head {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2.4px);
-  }
+/* ── painted layers (canvas-relative boxes set inline) ──────────────── */
+.cs-layer {
+  position: absolute;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.cs-base {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cs-expr {
+  position: absolute;
+  inset: 0;
+  /* a group's mouths / blink never paint over the face fading in above it */
+  isolation: isolate;
 }
 
 /* ── blink / lip-sync (attributes toggled by hooks, no React re-render) ── */
-.cs-eye-closed {
-  display: none;
+.cs-mouth,
+.cs-blink {
+  visibility: hidden;
 }
 
-.cs-root[data-blink] .cs-eye-open {
-  display: none;
-}
-
-.cs-root[data-blink] .cs-eye-closed {
-  display: inline;
-}
-
-.cs-mouth {
-  display: none;
-}
-
-.cs-root:not([data-mouth]) .cs-m0,
-.cs-root[data-mouth='0'] .cs-m0,
 .cs-root[data-mouth='1'] .cs-m1,
 .cs-root[data-mouth='2'] .cs-m2,
-.cs-root[data-mouth='3'] .cs-m3 {
-  display: inline;
+.cs-root[data-mouth='3'] .cs-m3,
+.cs-root[data-blink] .cs-blink {
+  visibility: visible;
 }
 
-/* ── expression crossfade ───────────────────────────────────────────── */
+/* ── expression crossfade: the new face fades in over the old one ───── */
 .cs-face-in {
   animation: cs-fade-in 170ms ease-out both;
-}
-
-.cs-face-out {
-  animation: cs-fade-out 170ms ease-in both;
 }
 
 @keyframes cs-fade-in {
@@ -83,20 +88,29 @@
   }
 }
 
-@keyframes cs-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+/* ── manga symbols ──────────────────────────────────────────────────── */
+.cs-symbols {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
 }
 
-/* ── manga symbols ──────────────────────────────────────────────────── */
 .cs-sparkle {
   transform-box: fill-box;
   transform-origin: center;
   animation: cs-twinkle 1.6s ease-in-out infinite;
+}
+
+.cs-sparkle--late {
+  animation-delay: -0.55s;
+}
+
+.cs-sparkle--later {
+  animation-delay: -1.1s;
 }
 
 @keyframes cs-twinkle {
@@ -108,20 +122,6 @@
   50% {
     transform: scale(0.55) rotate(20deg);
     opacity: 0.6;
-  }
-}
-
-.cs-sweat {
-  animation: cs-sweat 2.4s ease-in-out infinite;
-}
-
-@keyframes cs-sweat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(4px);
   }
 }
 
@@ -166,9 +166,12 @@
 .cp-portrait__art {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.cp-portrait__stage {
+  inset: auto;
 }
 
 .cp-portrait--silhouette {
@@ -185,19 +188,15 @@
 }
 
 /* ── reduced motion ─────────────────────────────────────────────────── */
-.reduce-motion .cs-bob-body,
-.reduce-motion .cs-bob-head,
+.reduce-motion .cs-breathe,
 .reduce-motion .cs-sparkle,
-.reduce-motion .cs-sweat,
 .reduce-motion .cs-shock {
   animation: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cs-bob-body,
-  .cs-bob-head,
+  .cs-breathe,
   .cs-sparkle,
-  .cs-sweat,
   .cs-shock {
     animation: none !important;
   }
